@@ -5,6 +5,7 @@
     "openTime": 9,
     "closeTime": 21
   },
+
   "lands": [
     { "id": "crossroads", "name": "The Crossroads", "isHub": true },
     { "id": "observatory", "name": "Observatory Castle", "isGateway": true },
@@ -14,6 +15,7 @@
     { "id": "ironhaven", "name": "Ironhaven Cove" },
     { "id": "ember_wastes", "name": "Ember Wastes" }
   ],
+
   "connections": [
     { "from": "entry", "to": "crossroads", "transitMinutes": 2 },
     { "from": "crossroads", "to": "hollow", "transitMinutes": 4 },
@@ -25,5 +27,53 @@
     { "from": "enchanted_forest", "to": "hollow", "transitMinutes": 2 },
     { "from": "ironhaven", "to": "ember_wastes", "transitMinutes": 2 },
     { "from": "lunara", "to": "ironhaven", "transitMinutes": 3, "isTunnel": true }
+  ],
+
+"attractions": [
+    { "id": "witchfire_run", "name": "Witchfire Run", "land": "hollow", "type": "attraction", "category": "Roller Coaster", "capacityPerHour": 1800 },
+    { "id": "covens_march", "name": "The Coven's March", "land": "hollow", "type": "attraction", "category": "Roller Coaster", "capacityPerHour": 1000, "isBottleneck": true },
+    { "id": "rite_of_coven", "name": "Rite of the Coven", "land": "hollow", "type": "attraction", "category": "Dark Ride", "capacityPerHour": 1400 },
+    { "id": "hollow_circle", "name": "Rite of the Hollow Circle", "land": "hollow", "type": "activity", "category": "Show", "capacityPerHour": 800, "isShow": true },
+    { "id": "blackwood_brew", "name": "The Blackwood Brew Hall", "land": "hollow", "type": "dining", "capacityPerHour": null },
+    { "id": "iron_sigil", "name": "The Iron Sigil", "land": "hollow", "type": "shopping", "capacityPerHour": null },
+
+    { "id": "heart_of_forest", "name": "The Heart of the Forest", "land": "enchanted_forest", "type": "attraction", "category": "Dark Ride", "capacityPerHour": 900, "isBottleneck": true },
+    { "id": "bramble_run", "name": "Bramble Run", "land": "enchanted_forest", "type": "attraction", "category": "Family Coaster", "capacityPerHour": 1600 },
+    { "id": "faelights", "name": "Path of the Faelights", "land": "enchanted_forest", "type": "attraction", "category": "Walkthrough", "capacityPerHour": 2400 },
+    { "id": "faerie_circle", "name": "The Faerie Circle Gathering", "land": "enchanted_forest", "type": "activity", "category": "Meet and Greet", "capacityPerHour": 300 },
+    { "id": "songs_grove", "name": "Songs of the Grove", "land": "enchanted_forest", "type": "activity", "category": "Sing-along", "capacityPerHour": 1000, "isShow": true },
+    { "id": "moss_market", "name": "Moss & Melody Market", "land": "enchanted_forest", "type": "shopping", "capacityPerHour": null },
+    { "id": "golden_acorn", "name": "The Golden Acorn", "land": "enchanted_forest", "type": "dining", "capacityPerHour": null },
+
+    { "id": "celestial_carousel", "name": "Celestial Carousel", "land": "lunara", "type": "attraction", "category": "Flat Ride", "capacityPerHour": 2200 },
+    { "id": "observatory_ascent", "name": "Observatory Ascent", "land": "lunara", "type": "attraction", "category": "Dark Ride", "capacityPerHour": 1100, "isBottleneck": true },
+    { "id": "stargazers_keep", "name": "Stargazer's Keep", "land": "lunara", "type": "activity", "category": "Walkthrough", "capacityPerHour": 2000 },
+    { "id": "lunar_market", "name": "The Lunar Market", "land": "lunara", "type": "shopping", "capacityPerHour": null },
+    { "id": "astronomers_table", "name": "The Astronomer's Table", "land": "lunara", "type": "dining", "capacityPerHour": null },
+
+    { "id": "wandering_guild", "name": "The Wandering Guild", "land": "crossroads", "type": "activity", "category": "Meet and Greet", "capacityPerHour": 400 },
+    { "id": "traveling_bard", "name": "Tales of the Traveling Bard", "land": "crossroads", "type": "activity", "category": "Live Show", "capacityPerHour": 1200, "isShow": true },
+    { "id": "guildhall", "name": "Guildhall of the Crossroads", "land": "crossroads", "type": "shopping", "capacityPerHour": null },
+    { "id": "grand_bazaar", "name": "The Grand Bazaar", "land": "crossroads", "type": "shopping", "capacityPerHour": null },
+    { "id": "curios", "name": "Curios & Curiosities", "land": "crossroads", "type": "shopping", "capacityPerHour": null },
+    { "id": "traveling_tinker", "name": "The Traveling Tinker", "land": "crossroads", "type": "shopping", "capacityPerHour": null },
+    { "id": "gilded_compass", "name": "The Gilded Compass Tavern", "land": "crossroads", "type": "dining", "capacityPerHour": null },
+    { "id": "roasted_boar", "name": "The Roasted Boar", "land": "crossroads", "type": "dining", "capacityPerHour": null },
+    { "id": "firefruit", "name": "Firefruit Roasters", "land": "crossroads", "type": "dining", "capacityPerHour": null },
+
+    { "id": "iron_kraken", "name": "The Iron Kraken", "land": "ironhaven", "type": "attraction", "category": "Water Coaster", "capacityPerHour": 1200, "isBottleneck": true },
+    { "id": "dockyard_breakout", "name": "Dockyard Breakout", "land": "ironhaven", "type": "attraction", "category": "Old Mill", "capacityPerHour": 1800 },
+    { "id": "inventors_dockyard", "name": "The Inventor's Dockyard", "land": "ironhaven", "type": "activity", "category": "Water Park", "capacityPerHour": 2500 },
+    { "id": "ironhaven_plunge", "name": "Ironhaven Plunge", "land": "ironhaven", "type": "attraction", "category": "Flume", "capacityPerHour": 1400 },
+    { "id": "brass_barnacle", "name": "Brass & Barnacle Outfitters", "land": "ironhaven", "type": "shopping", "capacityPerHour": null },
+    { "id": "blackwake_tavern", "name": "Blackwake Tavern", "land": "ironhaven", "type": "dining", "capacityPerHour": null },
+
+    { "id": "outlaw_run", "name": "Outlaw Run: Ember Trail", "land": "ember_wastes", "type": "attraction", "category": "Roller Coaster", "capacityPerHour": 1600 },
+    { "id": "outlaws_wastes", "name": "Outlaws of the Wastes", "land": "ember_wastes", "type": "attraction", "category": "Interactive Ride", "capacityPerHour": 1400 },
+    { "id": "last_run", "name": "The Last Run of Redline", "land": "ember_wastes", "type": "attraction", "category": "Dark Ride", "capacityPerHour": 950, "isBottleneck": true },
+    { "id": "high_noon", "name": "High Noon at Cinder Ridge", "land": "ember_wastes", "type": "activity", "category": "Show", "capacityPerHour": 1000, "isShow": true },
+    { "id": "cinder_supply", "name": "Cinder Supply Co.", "land": "ember_wastes", "type": "shopping", "capacityPerHour": null },
+    { "id": "cinder_chop", "name": "The Cinder Ridge Chop House", "land": "ember_wastes", "type": "dining", "capacityPerHour": null }
   ]
+
 }
