@@ -1,0 +1,29 @@
+{
+  "park": {
+    "name": "Aethermoor",
+    "hoursOfOperation": 12,
+    "openTime": 9,
+    "closeTime": 21
+  },
+  "lands": [
+    { "id": "crossroads", "name": "The Crossroads", "isHub": true },
+    { "id": "observatory", "name": "Observatory Castle", "isGateway": true },
+    { "id": "lunara", "name": "Lunara" },
+    { "id": "hollow", "name": "The Hollow" },
+    { "id": "enchanted_forest", "name": "Enchanted Forest" },
+    { "id": "ironhaven", "name": "Ironhaven Cove" },
+    { "id": "ember_wastes", "name": "Ember Wastes" }
+  ],
+  "connections": [
+    { "from": "entry", "to": "crossroads", "transitMinutes": 2 },
+    { "from": "crossroads", "to": "hollow", "transitMinutes": 4 },
+    { "from": "crossroads", "to": "enchanted_forest", "transitMinutes": 3 },
+    { "from": "crossroads", "to": "ironhaven", "transitMinutes": 4 },
+    { "from": "crossroads", "to": "ember_wastes", "transitMinutes": 4 },
+    { "from": "crossroads", "to": "observatory", "transitMinutes": 2 },
+    { "from": "observatory", "to": "lunara", "transitMinutes": 2 },
+    { "from": "enchanted_forest", "to": "hollow", "transitMinutes": 2 },
+    { "from": "ironhaven", "to": "ember_wastes", "transitMinutes": 2 },
+    { "from": "lunara", "to": "ironhaven", "transitMinutes": 3, "isTunnel": true }
+  ]
+}
