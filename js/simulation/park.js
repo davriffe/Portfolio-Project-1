@@ -9,3 +9,24 @@ async function loadPark() {
     const data = await response.json();
     return data;
 }
+function buildParkMap(data) {
+    const parkMap = {
+        lands: {},
+        connections: [],
+        attractions: {}
+    };
+
+    data.lands.forEach(land => {
+        parkMap.lands[land.id] = land;
+    });
+
+    data.connections.forEach(connection => {
+        parkMap.connections.push(connection);
+    });
+
+    data.attractions.forEach(attraction => {
+        parkMap.attractions[attraction.id] = attraction;
+    });
+
+    return parkMap;
+}
