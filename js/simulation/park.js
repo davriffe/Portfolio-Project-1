@@ -25,7 +25,7 @@ function buildParkMap(data) {
     });
 
     data.attractions.forEach(attraction => {
-        parkMap.attractions[attraction.id] = attraciton;
+        parkMap.attractions[attraction.id] = attraction;
     });
 
     return parkMap;
