@@ -25,8 +25,19 @@ function buildParkMap(data) {
     });
 
     data.attractions.forEach(attraction => {
-        parkMap.attractions[attraction.id] = attraction;
+        parkMap.attractions[attraction.id] = attraciton;
     });
 
     return parkMap;
+}
+function getAttractionsByLand(parkMap, landId) {
+    const results = [];
+
+    Object.values(parkMap.attractions).forEach(attraction => {
+        if (attraction.land === landId) {
+            results.push(attraction);
+        }
+    });
+
+    return results;
 }
