@@ -4,6 +4,7 @@
 // Does NOT handle movement or decisions - that is engine.js
 
 const ARCHETYPES = {
+
     ride_activity_enthusiast: {
         id: "ride_activity_enthusiast",
         name: "Ride/Activity Enthusiast",
@@ -30,6 +31,7 @@ const ARCHETYPES = {
         stayHours: { min: 10, max: 11}
         }
     },
+
     season_pass_holder: {
         id: "season_pass_holder",
         name: "Season Pass Holder",
@@ -53,8 +55,20 @@ const ARCHETYPES = {
                 preferred: 20,
                 other: 20
             },
-            stayHours: { min: 5, max:6 }
+            stayHours: { min: 5, max: 6}
         }
+    },
 
+    once_in_a_lifetime: {
+        id: "once_in_a_lifetime",
+        name: "Once in a Lifetime Family",
+        fixed: {
+            preferenceWeights: {
+                attractions: 0.40,
+                activities: 0.40,
+                shopping: 0.20,
+            },
+            reRideTendency: "low"
+        }
     }
 }
