@@ -217,7 +217,7 @@ function createAgent(archetypeId) {
     const isFirstVisit = Math.random() < 0.30;
     const isForeignVisitor = Math.random() < 0.15;
 
-    const stayHours = template.baseStats.stayHours.min + Math.random() * (template.baseStats.stayHours.Max - template.baseStats.stayHours.min);
+    const stayHours = template.baseStats.stayHours.min + Math.random() * (template.baseStats.stayHours.max - template.baseStats.stayHours.min);
 
     const agent = {
         id: crypto.randomUUID(),
