@@ -260,3 +260,5 @@ function createAgent(archetypeId) {
     }
     return agent;
 }
+
+export { ARCHETYPES, createAgent };

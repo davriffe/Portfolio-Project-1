@@ -41,3 +41,5 @@ function getAttractionsByLand(parkMap, landId) {
 
     return results;
 }
+
+export { loadPark, buildParkMap, getAttractionsByLand };
