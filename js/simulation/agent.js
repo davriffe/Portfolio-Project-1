@@ -209,3 +209,13 @@ const ARCHETYPES = {
         }
     }
 }
+
+function createAgent(archetypeId) {
+    
+    const template = ARCHETYPES[archetypeId];
+
+    const isFirstVisit = Math.random() < 0.30;
+    const isForeignVisitor = Math.random() < 0.15;
+
+    
+}
