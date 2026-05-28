@@ -44,3 +44,25 @@ const CLOSING_SOON_TICK = 660;
 const PARK_CLOSED_TICK = 720;
 const SPAWN_CUTOFF_TICK = 600;
 const VIP_EXIT_TICK = 750;
+
+let simulationState = {
+    status: "idle",
+    currentTick: 0,
+    agents: [],
+    queues: {},
+    parkMap: null,
+    stats: {
+        totalAgentsSpawned: 0,
+        totalAgentsExited: 0,
+        satisfactionByLand: {},
+        peakQueueByAttraction: {}
+    }
+};
+
+// Bellow is the initialization function.
+// This runs once when the user hits Play and sets everything up before the first tick.
+
+async function initSimulation(agentCount = 100) {
+    const rawData - await loadPark();
+    
+}
