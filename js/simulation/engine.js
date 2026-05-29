@@ -63,7 +63,7 @@ let simulationState = {
 // This runs once when the user hits Play and sets everything up before the first tick.
 
 async function initSimulation(agentCount = 100) {
-    const rawData - await loadPark();
+    const rawData = await loadPark();
     simulationState.parkMap = buildParkMap(rawData);
 
     simulationState.queues = {};
@@ -92,3 +92,11 @@ async function initSimulation(agentCount = 100) {
     console.log("Attractions loaded:", Object.values(simulationState.parkMap.attractions).length);
 }
 
+function selectAarchetype() {
+    const roll = Math.random();
+    let cumulative = 0;
+
+    for (const [archetypeId, weight] of Object.entries(SPAWN_WEIGHTS)) {
+        
+    }
+}
