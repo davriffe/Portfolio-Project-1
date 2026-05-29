@@ -64,5 +64,31 @@ let simulationState = {
 
 async function initSimulation(agentCount = 100) {
     const rawData - await loadPark();
-    
+    simulationState.parkMap = buildParkMap(rawData);
+
+    simulationState.queues = {};
+    Object.values(simulationState.parkMap.attractions).forEach(attraction => {
+        if (attraction.capacityPerHour !== null) {
+            simulationState.queues[attraction.id] = [];
+        }
+    });
+
+    simulationState.agents = [];
+    simulationState.currentTick = 0;
+    simulationState.status = "idle";
+    simulationState.stats = {
+        totalAgentsSpawned: 0,
+        totalAgentsExited: 0,
+        satisfactionByLand: {},
+        peakQueueByAttraction: {}
+    };
+
+    Object.keys(simulationState.parkMap.lands).forEach(landId => {
+        simulationState.stats.satisfactionByLand[landId] = [];
+    });
+
+    console.log("Simulation initialized with park:", rawData.park.name);
+    console.log("Lands loaded:", Object.keys(simulationState.parkMap.lands).length);
+    console.log("Attractions loaded:", Object.values(simulationState.parkMap.attractions).length);
 }
+
