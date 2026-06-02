@@ -92,11 +92,11 @@ async function initSimulation(agentCount = 100) {
     console.log("Attractions loaded:", Object.values(simulationState.parkMap.attractions).length);
 }
 
-function selectAarchetype() {
+function selectArchetype() {
     const roll = Math.random();
     let cumulative = 0;
 
-for (const [archetypeId, weight] of Object.entries(SPAWN_WEIGHTS)) {
+    for (const [archetypeId, weight] of Object.entries(SPAWN_WEIGHTS)) {
         cumulative += weight;
         if (roll < cumulative) {
             return archetypeId;
@@ -121,7 +121,25 @@ function isInArrivalWindow(archetypeId, currentTick) {
 }
 
 function getSpawnChance(currentTick) {
-    if (currentTick < 60) return 0.8;
+    if (currentTick < 60)  return 0.8;
     if (currentTick < 180) return 0.6;
     if (currentTick < 300) return 0.4;
+    if (currentTick < 480) return 0.3;
+    if (currentTick < 600) return 0.2;
+    return 0;
+}
+
+function trySpawnAgent(agentCount) {
+    if (simulationState.currentTick >= SPAWN_CUTOFF_TICK) return;
+    if (simulationState.agents.length >= agentCount) return;
+
+    const spawnChance = getSpawnChance(simulationState.currentTick);
+    if (Math.random() > spawnChance) return;
+
+    const archetypeId = selectArchetype();
+    if (!isInArrivalWindow(archetypeId, simulationState.currentTick)) return;
+
+    const agent = createAgent(archetypeId);
+    simulationState.agents.push(agent);
+    simulationState.stats.totalAgentsSpawned++;
 }
