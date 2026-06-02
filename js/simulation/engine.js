@@ -7,6 +7,10 @@
 import { loadPark, buildParkMap, getAttractionsByLand } from './park.js';
 import { ARCHETYPES, createAgent } from './agent.js';
 
+// ENERGY_RATES: converts archetype drain/recovery strings to numeric multipliers
+// Used by tick loop when calculating energy changes per minute
+// veryLow = barely drains, veryHigh = exhausts quickly
+
 const ENERGY_RATES = {
     veryLow: 0.25,
     low: 0.50,
@@ -14,6 +18,10 @@ const ENERGY_RATES = {
     high: 1.50,
     veryHigh: 2.00
 };
+
+// SATISFACTION_EVENTS: point values for things that make agents happy or frustrated
+// Positive = good experience, negative = bad experience
+// Referenced whenever an agent completes, balks, or hits a threshold
 
 const SATISFACTION_EVENTS = {
     completedPreferred: 10,
@@ -30,6 +38,10 @@ const SATISFACTION_EVENTS = {
     attractionOnCooldown: -3
 };
 
+// SPAWN_WEIGHTS: probability distribution for archetype selection at spawn
+// Must add up to 1.0 exactly
+// Higher number = more common in the park
+
 const SPAWN_WEIGHTS = {
     ride_activity_enthusiast: 0.25,
     season_pass_holder: 0.15,
@@ -40,10 +52,23 @@ const SPAWN_WEIGHTS = {
     vlogger: 0.05
 };
 
+// SIMULATION MILESTONES (in ticks, 1 tick = 1 minute, 720 ticks = full day)
+// SPAWN_CUTOFF: no new agents after 7pm
+// CLOSING_SOON: agents start heading out at 8pm
+// PARK_CLOSED: everyone exits at 9pm
+// VIP_EXIT: VIPs linger until 9:30pm
+
 const CLOSING_SOON_TICK = 660;
 const PARK_CLOSED_TICK = 720;
 const SPAWN_CUTOFF_TICK = 600;
 const VIP_EXIT_TICK = 750;
+
+// simulationState: single source of truth for everything happening right now
+// Viz files read from this every tick to know what to draw
+// status: idle/playing/paused/ended
+// agents: all active agents currently in park
+// queues: who is waiting at each attraction
+// stats: running totals for end state heatmap
 
 let simulationState = {
     status: "idle",
@@ -61,6 +86,9 @@ let simulationState = {
 
 // Bellow is the initialization function.
 // This runs once when the user hits Play and sets everything up before the first tick.
+// initSimulation: runs once when user hits Play
+// Loads park data, builds queues, resets all state
+// agentCount defaults to 100, control panel can override
 
 async function initSimulation(agentCount = 100) {
     const rawData = await loadPark();
@@ -92,6 +120,10 @@ async function initSimulation(agentCount = 100) {
     console.log("Attractions loaded:", Object.values(simulationState.parkMap.attractions).length);
 }
 
+// selectArchetype: weighted random selection from SPAWN_WEIGHTS
+// Rolls 0-1 and walks through weights until roll is covered
+// More weight = bigger slice = more likely to be selected
+
 function selectArchetype() {
     const roll = Math.random();
     let cumulative = 0;
@@ -104,6 +136,10 @@ function selectArchetype() {
     }
     return "ride_activity_enthusiast";
 }
+
+// isInArrivalWindow: checks if current tick falls in archetype's arrival window
+// Prevents late spawning of archetypes who only arrive early (vlogger, VIP)
+// Season pass holder has widest window - arrives anytime before 5pm
 
 function isInArrivalWindow(archetypeId, currentTick) {
     const windows = {
@@ -120,6 +156,10 @@ function isInArrivalWindow(archetypeId, currentTick) {
     return currentTick >= window.min && currentTick <= window.max;
 }
 
+// getSpawnChance: returns probability of a spawn attempt succeeding this tick
+// Creates realistic arrival curve - busy morning, quiet afternoon
+// Returns 0 after tick 600 as backup to SPAWN_CUTOFF check
+
 function getSpawnChance(currentTick) {
     if (currentTick < 60)  return 0.8;
     if (currentTick < 180) return 0.6;
@@ -128,6 +168,10 @@ function getSpawnChance(currentTick) {
     if (currentTick < 600) return 0.2;
     return 0;
 }
+
+// trySpawnAgent: orchestrates all spawn checks in order
+// Early returns if any check fails - efficient and readable
+// Only creates agent if tick, count, chance, and arrival window all pass
 
 function trySpawnAgent(agentCount) {
     if (simulationState.currentTick >= SPAWN_CUTOFF_TICK) return;
