@@ -1,7 +1,7 @@
 // engine.js
-// Runs the main simulation look
+// Runs the main simulation loop
 // Imports park data from park.js and agent logic from agent.js
-// Handles: tick look, spawning, decisions, queues, engery, satisfaction
+// Handles: tick loop, spawning, decisions, queues, energy, satisfaction
 // Exposes simulation state to viz files
 
 import { loadPark, buildParkMap, getAttractionsByLand } from './park.js';
