@@ -96,7 +96,32 @@ function selectAarchetype() {
     const roll = Math.random();
     let cumulative = 0;
 
-    for (const [archetypeId, weight] of Object.entries(SPAWN_WEIGHTS)) {
-        
+for (const [archetypeId, weight] of Object.entries(SPAWN_WEIGHTS)) {
+        cumulative += weight;
+        if (roll < cumulative) {
+            return archetypeId;
+        }
     }
+    return "ride_activity_enthusiast";
+}
+
+function isInArrivalWindow(archetypeId, currentTick) {
+    const windows = {
+        ride_activity_enthusiast: { min: 0, max: 120 },
+        season_pass_holder:       { min: 0, max: 480 },
+        once_in_a_lifetime:       { min: 60, max: 180 },
+        friend_group:             { min: 60, max: 240 },
+        newly_married:            { min: 60, max: 180 },
+        vip_entitled:             { min: 0, max: 120 },
+        vlogger:                  { min: 0, max: 60 }
+    };
+
+    const window = windows[archetypeId];
+    return currentTick >= window.min && currentTick <= window.max;
+}
+
+function getSpawnChance(currentTick) {
+    if (currentTick < 60) return 0.8;
+    if (currentTick < 180) return 0.6;
+    if (currentTick < 300) return 0.4;
 }
