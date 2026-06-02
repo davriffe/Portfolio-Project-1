@@ -187,3 +187,85 @@ function trySpawnAgent(agentCount) {
     simulationState.agents.push(agent);
     simulationState.stats.totalAgentsSpawned++;
 }
+
+// TICK LOOP VARIABLES
+// lastTickTime: timestamp of when last tick ran, used to measure real time elapsed
+// msPerTick: milliseconds of real time between each simulated minute
+//   1000 = 1 real second per tick = 12 real minutes for full day
+//   500 = 2 ticks per second = 6 real minutes (2x speed)
+// agentCountSetting: max agents allowed in park at once, set by control panel slider
+
+let lastTickTime = 0;
+let msPerTick = 1000;
+let agentCountSetting = 100;
+
+// simulationLoop: called by requestAnimationFrame ~60 times per second
+// Only runs a tick when enough real time has passed (msPerTick threshold)
+// Stops immediately if simulation is not in playing status
+
+function simulationLoop(timestamp) {
+    if (simulationState.status !== "playing") return;
+
+    if (timestamp - lastTickTime >= msPerTick) {
+        lastTickTime = timestamp;
+        runTick();
+    }
+    requestAnimationFrame(simulationLoop);
+}
+
+// runTick: executes one simulated minute of park time
+// Checks if park should end, spawns new agents, advances clock, records stats
+// Order is important - always spawn before advancing tick
+
+function runTick() {
+    if (simulationState.currentTick >= PARK_CLOSED_TICK)
+        const activeAgents = simulationState.agents.filter(
+            agent => agent.dynamic.currentLand !== "exited"
+    );
+        if (activeAgents.length === 0) {
+            endSimulation();
+            return;
+        }
+
+
+    trySpawnAgent(agentCountSetting);
+    simulationState.currentTick++;
+    recordTickStats();
+}
+
+// recordTickStats: snapshot of current park state saved every tick
+// satisfactionByLand: builds array of average satisfaction per land over time
+// peakQueueByAttraction: tracks highest queue length ever seen per attraction
+// Both feed the end state heatmap and summary visualizations
+
+function recordTickStats() {
+    Object.keys(simulationState.parkMap.lands).forEach(landId => {
+        const agentsInLand = simulationState.agents.filter(
+            agent => agent.dynamic.currentLand === landId
+        );
+
+        if (agentsInLand.length > 0) {
+            const avgSatisfaction = agentsInLand.reduce(
+                (sum, agent) => sum + agent.dynamic.satisfaction, 0) / agentsInLand.length;
+
+            simulationState.stats.satisfactionByLand[landId].push(avgSatisfaction);
+        }
+    });
+
+    Object.keys(simulationState.queues).forEach(attractionId => {
+        const queueLength = simulationState.queues[attractionId].length;
+        const current = simulationState.stats.peakQueueByAttraction[attractionId] || 0;
+        if (queueLength > current) {simulationState.stats.peakQueueByAttraction[attractionId] = queueLength;}
+    });
+}
+
+// endSimulation: called when all agents have exited after park close
+// Freezes simulation state for viz to display final summary
+// Console logs provide quick sanity check during development
+
+function endSimulation() {
+    simulationState.status = "ended";
+    console.log("Simulation ended at tick:", simulationState.currentTick);
+    console.log("Total agents spawned:", simulationState.stats.totalAgentsSpawned);
+    console.log("Total agents exited:", simulationState.stats.totalAgentsExited);
+}
