@@ -218,15 +218,15 @@ function simulationLoop(timestamp) {
 // Order is important - always spawn before advancing tick
 
 function runTick() {
-    if (simulationState.currentTick >= PARK_CLOSED_TICK)
+    if (simulationState.currentTick >= PARK_CLOSED_TICK) {
         const activeAgents = simulationState.agents.filter(
             agent => agent.dynamic.currentLand !== "exited"
-    );
+        );
         if (activeAgents.length === 0) {
             endSimulation();
             return;
         }
-
+    }
 
     trySpawnAgent(agentCountSetting);
     simulationState.currentTick++;
@@ -269,3 +269,4 @@ function endSimulation() {
     console.log("Total agents spawned:", simulationState.stats.totalAgentsSpawned);
     console.log("Total agents exited:", simulationState.stats.totalAgentsExited);
 }
+
