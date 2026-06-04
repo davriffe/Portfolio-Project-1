@@ -84,8 +84,6 @@ let simulationState = {
     }
 };
 
-// Bellow is the initialization function.
-// This runs once when the user hits Play and sets everything up before the first tick.
 // initSimulation: runs once when user hits Play
 // Loads park data, builds queues, resets all state
 // agentCount defaults to 100, control panel can override
@@ -270,3 +268,44 @@ function endSimulation() {
     console.log("Total agents exited:", simulationState.stats.totalAgentsExited);
 }
 
+// SIMULATION CONTROLS: functions called directly by the UI control panel
+// play: initializes if needed then starts the tick loop
+// pause: freezes simulation in place, can be resumed
+// stop: ends simulation and resets everything to initial state
+// setSpeed: adjusts msPerTick to change how fast simulation runs
+// setAgentCount: updates max agent cap, takes effect on next spawn attempt
+
+async function play() {
+    if (simulationState.status === "idle") {
+        await initSimulation(agentCountSetting);
+    }
+    simulationState.status = "playing";
+    requestAnimationFrame(simulationLoop);
+}
+
+function pause() {
+    if (simulationState.status === "playing") {
+        simulationState.status = "paused";
+    } else if (simulationState.status === "paused") {
+        simulationState.status = "playing";
+        requestAnimationFrame(simulationLoop);
+    }
+}
+
+function stop() {
+    simulationState.status = "idle";
+    simulationState.currentTick = 0;
+    simulationState.agents = [];
+    simulationState.queues = {};
+    lastTickTime = 0;
+    console.log("Simulation stopped and reset.");
+}
+
+function setSpeed(multiplier) {
+    const speeds = { 1: 1000, 2: 500, 4: 250, 8: 125 };
+    msPerTick = speeds[multiplier] || 1000;
+}
+
+function setAgentCount(count) {
+    agentCountSetting = Math.min(Math.max(count, 10), 200);
+}
