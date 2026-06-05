@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aethermoor — Park Simulation</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="app">
+
+        <div id="control-panel">
+            <h1>Aethermoor</h1>
+            <div id="controls">
+                <button id="btn-play">Play</button>
+                <button id="btn-pause">Pause</button>
+                <button id="btn-stop">Stop</button>
+                <button id="btn-reset">Reset</button>
+            </div>
+            <div id="speed-control">
+                <label>Speed</label>
+                <input type="range" id="slider-speed" min="1" max="8" value="1" step="1">
+                <span id="speed-display">1x</span>
+            </div>
+            <div id="agent-control">
+                <label>Agents</label>
+                <input type="range" id="slider-agents" min="10" max="200" value="100" step="10">
+                <span id="agent-display">100</span>
+            </div>
+            <div id="sim-clock">
+                <span id="clock-display">9:00 AM</span>
+            </div>
+        </div>
+
+        <div id="viz-container">
+
+            <!-- Three.js renders the full 3D park environment here -->
+            <canvas id="threejs-canvas"></canvas>
+
+            <!-- D3 overlay panels - toggled on/off by cursor position -->
+            <div id="d3-overlay">
+                <div id="network-panel" class="overlay-panel">
+                    <!-- D3 network graph renders here -->
+                </div>
+                <div id="queue-panel" class="overlay-panel">
+                    <!-- D3 queue depth chart renders here -->
+                </div>
+                <div id="satisfaction-panel" class="overlay-panel">
+                    <!-- D3 satisfaction heatmap renders here -->
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script type="module" src="js/simulation/engine.js"></script>
+
+</body>
+</html>
