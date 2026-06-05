@@ -84,6 +84,9 @@ let simulationState = {
     }
 };
 
+const snapshotInterval = 10;
+let snapshots = [];
+
 // initSimulation: runs once when user hits Play
 // Loads park data, builds queues, resets all state
 // agentCount defaults to 100, control panel can override
@@ -324,20 +327,10 @@ function setAgentCount(count) {
 // WARNING: storing full state every tick would use too much memory
 // Every 10 ticks is a reasonable tradeoff between accuracy and memory
 
-const snapshotInterval = 10;
-let snapshots = [];
-
-// TODO: build timeline scrubber UI in V2
-// TODO: connect seekToTick() to timeline drag event
-// TODO: add AWS support for larger agent counts
-
 // TODO V2: connect seekToTick() to timeline scrubber drag event in viz layer
 // TODO V2: add timeline bar component to index.html  
 // TODO V2: style timeline to disappear when cursor not at bottom of screen
 // TODO V2: consider AWS for larger agent counts beyond 200
-
-
-
 
 function captureSnapshot() {
     if (simulationState.currentTick % snapshotInterval !== 0) return;
