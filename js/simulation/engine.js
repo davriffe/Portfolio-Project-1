@@ -229,6 +229,7 @@ function runTick() {
     trySpawnAgent(agentCountSetting);
     simulationState.currentTick++;
     recordTickStats();
+    captureSnapshot();
 }
 
 // recordTickStats: snapshot of current park state saved every tick
@@ -294,11 +295,17 @@ function pause() {
 
 function stop() {
     simulationState.status = "idle";
+    console.log("Simulation stopped.");
+}
+
+function reset() {
+    simulationState.status = "idle";
     simulationState.currentTick = 0;
     simulationState.agents = [];
     simulationState.queues = {};
     lastTickTime = 0;
-    console.log("Simulation stopped and reset.");
+    snapshots = [];
+    console.log("Simulation reset.");
 }
 
 function setSpeed(multiplier) {
@@ -309,3 +316,60 @@ function setSpeed(multiplier) {
 function setAgentCount(count) {
     agentCountSetting = Math.min(Math.max(count, 10), 200);
 }
+
+// TIMELINE / HISTORY
+// snapshots: array of simulation state captures taken every 10 ticks
+// Enables timeline scrubbing — seek to any point by loading nearest snapshot
+// snapshotInterval: how often to capture state (every 10 ticks = every 10 minutes)
+// WARNING: storing full state every tick would use too much memory
+// Every 10 ticks is a reasonable tradeoff between accuracy and memory
+
+const snapshotInterval = 10;
+let snapshots = [];
+
+// TODO: build timeline scrubber UI in V2
+// TODO: connect seekToTick() to timeline drag event
+// TODO: add AWS support for larger agent counts
+
+// TODO V2: connect seekToTick() to timeline scrubber drag event in viz layer
+// TODO V2: add timeline bar component to index.html  
+// TODO V2: style timeline to disappear when cursor not at bottom of screen
+// TODO V2: consider AWS for larger agent counts beyond 200
+
+
+
+
+function captureSnapshot() {
+    if (simulationState.currentTick % snapshotInterval !== 0) return;
+
+    snapshots.push({
+        tick: simulationState.currentTick,
+        agents: JSON.parse(JSON.stringify(simulationState.agents)),
+        queues: JSON.parse(JSON.stringify(simulationState.queues)),
+        stats: JSON.parse(JSON.stringify(simulationState.stats))
+    });
+}
+
+function seekToTick(targetTick) {
+    const snapshot = snapshots.reduce((closest, current) => {
+        return Math.abs(current.tick - targetTick) < 
+               Math.abs(closest.tick - targetTick) ? current : closest;
+    });
+
+    simulationState.currentTick = snapshot.tick;
+    simulationState.agents = JSON.parse(JSON.stringify(snapshot.agents));
+    simulationState.queues = JSON.parse(JSON.stringify(snapshot.queues));
+    simulationState.stats = JSON.parse(JSON.stringify(snapshot.stats));
+    simulationState.status = "paused";
+}
+
+export { 
+    simulationState, 
+    play, 
+    pause, 
+    stop, 
+    reset,
+    setSpeed, 
+    setAgentCount,
+    seekToTick
+};
