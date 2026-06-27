@@ -1,3 +1,16 @@
+/* style.css
+   Visual styling for the control panel and viz container shell
+   Variables (colors) are defined once in :root and referenced everywhere via var()
+   Does NOT handle Three.js scene styling or D3 chart styling - those render their own visuals on canvas/SVG
+*/
+
+/* ROOT VARIABLES
+   Single source of truth for every color used in the UI chrome
+   Change a value once here instead of hunting through the file for every hex code
+   Land palettes (Lunara purple, Ironhaven aqua, etc.) live in the Three.js layer, not here -
+   this file only knows about the interface, not Aethermoor's world
+*/
+
 :root {
     --color-bg-page: #1A1A1A;
     --color-bg-panel: #252525;
@@ -9,21 +22,41 @@
     --color-btn-border: #444444;
 }
 
+/* GLOBAL RESET
+   Strips default browser margin/padding so spacing is 100% intentional, not inherited
+   box-sizing: border-box keeps padding/border INSIDE a declared width instead of adding to it
+   Side effect: everything looks cramped until spacing is rebuilt deliberately below
+*/
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* BASE PAGE SETUP
+   height: 100% lets #app stretch to fill the full browser window (flex needs a height to divide up)
+   font-family sets the CAD-instrument feel; monospace fallback in case JetBrains Mono fails to load
+*/
+
 html, body {
     height: 100%;
     font-family: 'JetBrains Mono', monospace;
 }
 
+/* TWO-COLUMN APP SHELL
+   #app is the flex container that holds the sidebar and viz area side by side
+*/
+
 #app {
     display: flex;
     height: 100%;
 }
+
+/* SIDEBAR (LEFT COLUMN)
+   Fixed 220px width that never shrinks (flex-shrink: 0), even if the window narrows
+   display:flex + flex-direction:column lets #sim-clock pin to the bottom later via margin-top:auto
+*/
 
 #control-panel {
     width: 220px;
@@ -34,6 +67,12 @@ html, body {
     display: flex;
     flex-direction: column;
 }
+
+/* MAIN VIZ AREA (RIGHT COLUMN)
+   flex: 1 means "take up whatever space is left" after the sidebar's fixed width
+   position: relative sets the anchor point D3 overlay panels will need for position: absolute later
+   Three.js canvas and D3 overlays both live inside this element in index.html
+*/
 
 #viz-container {
     flex: 1;
@@ -47,6 +86,11 @@ html, body {
     color: var(--color-text-primary);
 }
 
+/* CONTROL LABELS ("Speed", "Agents")
+   display: block forces the label onto its own line above the slider
+   labels are inline by default, which would otherwise let content sit beside them
+*/
+
 #control-panel label {
     display: block;
     font-size: 0.85rem;
@@ -54,11 +98,21 @@ html, body {
     margin-bottom: 0.5rem;
 }
 
+/* PLAY / PAUSE / RESET ROW
+   Wraps the three buttons so they sit side by side with consistent spacing (gap)
+   Wrapper exists because #controls alone can't target "just these three, grouped" in CSS
+*/
+
 .btn-row {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
 }
+
+/* ALL BUTTONS (GLOBAL)
+   No class/ID - targets every <button> in the document at once
+   Every button should look the same, so one shared rule beats repeating this 3x
+*/
 
 button {
     background-color: var(--color-btn-bg);
@@ -71,20 +125,37 @@ button {
     cursor: pointer;
 }
 
+/* BUTTON HOVER STATE */
+
 button:hover {
     background-color: var(--color-btn-hover);
 }
+
+/* SPACING BETWEEN CONTROL GROUPS
+   Keeps Speed and Agent sections visually separated from whatever sits below them
+*/
 
 #speed-control,
 #agent-control {
     margin-bottom: 1.5rem;
 }
 
+/* SLIDER + VALUE DISPLAY ROW
+   Aligns each range input with its number display (e.g. "1x", "100") on one line
+   TODO: slider thumb still uses browser default styling - needs ::-webkit-slider-thumb /
+   ::-moz-range-thumb rules later, different syntax per browser
+*/
+
 .slider-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
+
+/* SIMULATION CLOCK
+   margin-top: auto is the payoff of #control-panel's flex-direction: column above -
+   pushes this element all the way to the bottom of the sidebar regardless of content above it
+*/
 
 #sim-clock {
     margin-top: auto;
