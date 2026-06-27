@@ -8,3 +8,35 @@
     --color-btn-hover: #3A3A3A;
     --color-btn-border: #444444;
 }
+{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+#app {
+    display: flex;
+    height: 100%;
+}
+
+#control-panel {
+    width: 220px;
+    flex-shrink: 0;
+    background-color: var(--color-bg-panel);
+    border-right: 1px solid var(--color-border);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+#viz-container {
+    flex: 1;
+    background-color: var(--color-bg-page);
+    position: relative;
+}
+
