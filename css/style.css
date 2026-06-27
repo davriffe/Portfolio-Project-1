@@ -80,6 +80,8 @@ html, body {
     position: relative;
 }
 
+/* PANEL TITLE */
+
 #control-panel h1 {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
@@ -123,6 +125,9 @@ button {
     font-family: inherit;
     font-size: 0.85rem;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* BUTTON HOVER STATE */
@@ -142,14 +147,58 @@ button:hover {
 
 /* SLIDER + VALUE DISPLAY ROW
    Aligns each range input with its number display (e.g. "1x", "100") on one line
-   TODO: slider thumb still uses browser default styling - needs ::-webkit-slider-thumb /
-   ::-moz-range-thumb rules later, different syntax per browser
 */
 
 .slider-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+/* RANGE INPUT (SLIDER) CUSTOM STYLING
+   Browsers don't share one spec for slider internals - each engine invented its own
+   pseudo-element for "the thumb" before any standard existed, so the same visual rule
+   gets written twice: once for WebKit/Blink (Chrome, Edge, Safari), once for Firefox
+   appearance: none strips the OS-native slider look first - without it, the native
+   widget still renders on top and the custom thumb below never actually shows
+*/
+input[type="range"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--color-btn-bg);
+    border-radius: 2px;
+    outline: none;
+}
+
+/* Thumb - WebKit/Blink browsers (Chrome, Edge, Safari) */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-text-primary);
+    border: 2px solid var(--color-bg-panel);
+    cursor: pointer;
+}
+
+/* Thumb - Firefox */
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-text-primary);
+    border: 2px solid var(--color-bg-panel);
+    cursor: pointer;
+}
+
+/* Track - Firefox styles this separately from the base element, unlike WebKit */
+input[type="range"]::-moz-range-track {
+    background: var(--color-btn-bg);
+    height: 4px;
+    border-radius: 2px;
 }
 
 /* SIMULATION CLOCK
@@ -162,3 +211,4 @@ button:hover {
     color: var(--color-text-secondary);
     font-size: 0.9rem;
 }
+
