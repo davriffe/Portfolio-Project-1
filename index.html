@@ -13,20 +13,25 @@
         <div id="control-panel">
             <h1>Aethermoor</h1>
             <div id="controls">
-                <button id="btn-play">Play</button>
-                <button id="btn-pause">Pause</button>
-                <button id="btn-stop">Stop</button>
-                <button id="btn-reset">Reset</button>
+                <div class="btn-row">
+                    <button id="btn-play">Play</button>
+                    <button id="btn-pause">Pause</button>
+                    <button id="btn-reset">Reset</button>
+                </div>
             </div>
             <div id="speed-control">
                 <label>Speed</label>
-                <input type="range" id="slider-speed" min="1" max="8" value="1" step="1">
-                <span id="speed-display">1x</span>
+                <div class="slider-row">
+                    <input type="range" id="slider-speed" min="1" max="8" value="1" step="1">
+                    <span id="speed-display">1x</span>
+                </div>
             </div>
             <div id="agent-control">
                 <label>Agents</label>
-                <input type="range" id="slider-agents" min="10" max="200" value="100" step="10">
-                <span id="agent-display">100</span>
+                <div class="slider-row">
+                    <input type="range" id="slider-agents" min="10" max="200" value="100" step="10">
+                    <span id="agent-display">100</span>
+                </div>
             </div>
             <div id="sim-clock">
                 <span id="clock-display">9:00 AM</span>
