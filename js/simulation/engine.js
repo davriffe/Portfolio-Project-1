@@ -366,3 +366,64 @@ export {
     setAgentCount,
     seekToTick
 };
+
+// ENERGY_LOW_THRESHOLD: below this, energy override beats archetype preference entirely
+// "Time is currency, energy is currency too" - an exhausted guest needs to recover
+// regardless of what they'd normally choose to do
+const ENERGY_LOW_THRESHOLD = 25;
+
+// PREFERENCE_TO_TYPE: preferenceWeights keys are plural, but park_config.json's
+// attraction "type" field is singular - this maps one to the other so a rolled
+// category can actually be used to filter real venues
+const PREFERENCE_TO_TYPE = {
+    attractions: "attraction",
+    activities: "activity",
+    shopping: "shopping"
+};
+
+// decideNextAction: picks what an idle agent does next
+// Does NOT move the agent or spend any time - that's the transit step, built separately
+// Sets dynamic.targetAttraction (where they're headed), distinct from currentAttraction
+// (where they currently ARE, only set once they actually arrive)
+function decideNextAction(agent, parkMap) {
+    let type;
+
+    if (agent.dynamic.energy < ENERGY_LOW_THRESHOLD) {
+        type = "dining";
+    } else {
+        const category = rollPreferenceCategory(agent.fixed.preferenceWeights);
+        type = PREFERENCE_TO_TYPE[category];
+    }
+
+    const target = pickRandomVenueByType(parkMap, type);
+    agent.dynamic.targetAttraction = target ? target.id : null;
+}
+
+// rollPreferenceCategory: weighted random pick from an agent's preferenceWeights
+// Same cumulative-weight pattern as selectArchetype() above
+function rollPreferenceCategory(preferenceWeights) {
+    const roll = Math.random();
+    let cumulative = 0;
+
+    for (const [category, weight] of Object.entries(preferenceWeights)) {
+        cumulative += weight;
+        if (roll < cumulative) {
+            return category;
+        }
+    }
+    return "attractions";
+}
+
+// pickRandomVenueByType: V1 stub - picks any matching venue anywhere in the park
+// Does NOT consider distance or transit time yet - that's the transit step's job
+// TODO: replace with nearest-by-transit-time once transit logic exists
+function pickRandomVenueByType(parkMap, type) {
+    const matches = Object.values(parkMap.attractions).filter(
+        attraction => attraction.type === type
+    );
+
+    if (matches.length === 0) return null;
+
+    const index = Math.floor(Math.random() * matches.length);
+    return matches[index];
+}

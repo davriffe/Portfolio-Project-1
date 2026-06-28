@@ -235,6 +235,7 @@ function createAgent(archetypeId) {
             stayMinutesRemaining: stayHours * 60,
             currentLand: "crossroads",
             currentAttraction: null,
+            targetAttraction: null,
             waitingMinutes: 0,
             cooldowns: {}
         }
