@@ -230,6 +230,14 @@ function runTick() {
     }
 
     trySpawnAgent(agentCountSetting);
+
+    // TEMPORARY TEST - confirms decideNextAction works, remove once confirmed
+    if (simulationState.agents.length > 0 && !window.__testedDecision) {
+        decideNextAction(simulationState.agents[0], simulationState.parkMap);
+        console.log("Target set to:", simulationState.agents[0].dynamic.targetAttraction);
+        window.__testedDecision = true;
+    }
+
     simulationState.currentTick++;
     recordTickStats();
     captureSnapshot();
@@ -356,17 +364,6 @@ function seekToTick(targetTick) {
     simulationState.status = "paused";
 }
 
-export { 
-    simulationState, 
-    play, 
-    pause, 
-    stop, 
-    reset,
-    setSpeed, 
-    setAgentCount,
-    seekToTick
-};
-
 // ENERGY_LOW_THRESHOLD: below this, energy override beats archetype preference entirely
 // "Time is currency, energy is currency too" - an exhausted guest needs to recover
 // regardless of what they'd normally choose to do
@@ -427,3 +424,16 @@ function pickRandomVenueByType(parkMap, type) {
     const index = Math.floor(Math.random() * matches.length);
     return matches[index];
 }
+
+
+export { 
+    simulationState, 
+    play, 
+    pause, 
+    stop, 
+    reset,
+    setSpeed, 
+    setAgentCount,
+    seekToTick
+};
+
