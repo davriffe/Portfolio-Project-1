@@ -236,6 +236,7 @@ function createAgent(archetypeId) {
             currentLand: "crossroads",
             currentAttraction: null,
             targetAttraction: null,
+            transit: null,
             waitingMinutes: 0,
             cooldowns: {}
         }
