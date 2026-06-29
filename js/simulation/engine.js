@@ -230,6 +230,11 @@ function runTick() {
     }
 
     trySpawnAgent(agentCountSetting);
+
+    simulationState.agents.forEach(agent => {
+        processAgent(agent, simulationState.parkMap, simulationState.currentTick);
+    });
+
     simulationState.currentTick++;
     recordTickStats();
     captureSnapshot();
@@ -417,6 +422,96 @@ function pickRandomVenueByType(parkMap, type) {
     return matches[index];
 }
 
+// TRANSIT_FALLBACK_MINUTES: used when no direct connection exists between two lands
+// The connections graph isn't fully connected (e.g. Hollow has no direct link to
+// Lunara - only Observatory does) - real multi-hop pathfinding is a V2 refinement
+// For V1, this flat estimate plus the longTransit penalty stands in for
+// "that was a long, indirect walk"
+const TRANSIT_FALLBACK_MINUTES = 8;
+
+// findConnectionMinutes: looks up direct transit time between two lands
+// Connections are stored one-directional in park_config.json but represent a
+// physical path usable both ways, so both directions get checked
+// Returns null if no direct connection exists - caller decides the fallback
+function findConnectionMinutes(parkMap, landA, landB) {
+    const connection = parkMap.connections.find(
+        c => (c.from === landA && c.to === landB) || (c.from === landB && c.to === landA)
+    );
+    return connection ? connection.transitMinutes : null;
+}
+
+// startTransit: begins moving an agent toward its target's land
+// Cost (time + energy) is deducted as a lump sum the moment travel begins,
+// not drained tick-by-tick during the trip - engine.js only needs to record
+// WHEN transit started and ends; a visualization layer can interpolate the
+// agent's position smoothly between those two known ticks on its own later
+function startTransit(agent, parkMap, currentTick) {
+    const target = parkMap.attractions[agent.dynamic.targetAttraction];
+    const toLand = target.land;
+    const fromLand = agent.dynamic.currentLand;
+
+    let minutes = findConnectionMinutes(parkMap, fromLand, toLand);
+
+    if (minutes === null) {
+        minutes = TRANSIT_FALLBACK_MINUTES;
+        agent.dynamic.satisfaction += SATISFACTION_EVENTS.longTransit;
+    }
+
+    const drainRate = ENERGY_RATES[agent.fixed.energyDrainRate];
+    agent.dynamic.energy = Math.max(0, agent.dynamic.energy - drainRate * minutes);
+    agent.dynamic.stayMinutesRemaining -= minutes;
+
+    agent.dynamic.transit = {
+        fromLand: fromLand,
+        toLand: toLand,
+        departTick: currentTick,
+        arriveTick: currentTick + minutes
+    };
+
+    // TEMPORARY TEST - confirms transit starts correctly, remove once confirmed
+    if (!window.__loggedTransitStart) {
+        console.log("Transit started:", fromLand, "->", toLand, ", arriving tick", currentTick + minutes);
+        window.__loggedTransitStart = true;
+    }
+}
+
+// checkTransitArrival: finalizes a transit once enough ticks have passed
+// Only updates currentLand - does NOT touch targetAttraction, since the agent
+// still needs to queue at the actual attraction once they're in the right land
+function checkTransitArrival(agent, currentTick) {
+    if (currentTick >= agent.dynamic.transit.arriveTick) {
+        const arrivedLand = agent.dynamic.transit.toLand;
+        agent.dynamic.currentLand = arrivedLand;
+        agent.dynamic.transit = null;
+
+        // TEMPORARY TEST - confirms transit completes correctly, remove once confirmed
+        if (!Window.__loggedTransitArrival) {
+            console.log("Transit arrived: now at", arrivedLand);
+            window.__loggedTransitArrival = true;
+        }
+    }
+}
+
+// processAgent: per-tick dispatcher for a single agent's state
+// Checks, in order: mid-transit? wait or finish. No target? decide one.
+// Has a target but not there yet? start traveling. Otherwise: arrived,
+// ready to queue - step 3, not built yet
+function processAgent(agent, parkMap, currentTick) {
+    if (agent.dynamic.transit) {
+        checkTransitArrival(agent, currentTick);
+        return;
+    }
+
+    if (!agent.dynamic.targetAttraction) {
+        decideNextAction(agent, parkMap);
+        return;
+    }
+
+    const target = parkMap.attractions[agent.dynamic.targetAttraction];
+    if (agent.dynamic.currentLand !== target.land) {
+        startTransit(agent, parkMap, currentTick);
+    }
+}
 
 export { 
     simulationState, 
