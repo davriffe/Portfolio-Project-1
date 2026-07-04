@@ -485,7 +485,7 @@ function checkTransitArrival(agent, currentTick) {
         agent.dynamic.transit = null;
 
         // TEMPORARY TEST - confirms transit completes correctly, remove once confirmed
-        if (!Window.__loggedTransitArrival) {
+        if (!window.__loggedTransitArrival) {
             console.log("Transit arrived: now at", arrivedLand);
             window.__loggedTransitArrival = true;
         }
