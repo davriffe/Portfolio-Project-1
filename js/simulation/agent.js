@@ -83,7 +83,7 @@ const ARCHETYPES = {
             reRideTendency: "low",
             reRideCooldownMinutes: 480,
             energyDrainRate: "high",
-            energyRecoveryRate: "slow",
+            energyRecoveryRate: "veryLow",
             groupSize: {min: 3, max:5 },
             canSplit: true,
             splitMin: 2
@@ -166,7 +166,7 @@ const ARCHETYPES = {
             reRideTendency: "high",
             reRideCooldownMinutes: 60,
             energyDrainRate: "veryLow",
-            energyRecoveryRate: "veryFast",
+            energyRecoveryRate: "veryHigh",
             groupSize: { min: 1, max: 3 },
             canSplit: true,
             lineSkip: true
@@ -194,7 +194,7 @@ const ARCHETYPES = {
             reRideTendency: "veryLow",
             reRideCooldownMinutes: 480,
             energyDrainRate: "veryLow",
-            energyRecoveryRate: "veryFast",
+            energyRecoveryRate: "veryHigh",
             groupSize: { min: 1, max: 1 },
             canSplit: false
         },

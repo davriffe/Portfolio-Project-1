@@ -7,11 +7,10 @@
 import { loadPark, buildParkMap, getAttractionsByLand } from './park.js';
 import { ARCHETYPES, createAgent } from './agent.js';
 
-// ENERGY_RATES: converts archetype drain/recovery strings to numeric multipliers
-// Used by tick loop when calculating energy changes per minute
-// veryLow = barely drains, veryHigh = exhausts quickly
-
-const ENERGY_RATES = {
+// DRAIN_RATES: converts energyDrainRate strings to numeric multipliers
+// Used when calculating energy cost of transit and activity
+// Scale: veryLow (barely tires) → veryHigh (exhausts quickly)
+const DRAIN_RATES = {
     veryLow: 0.25,
     low: 0.50,
     medium: 1.00,
@@ -19,6 +18,16 @@ const ENERGY_RATES = {
     veryHigh: 2.00
 };
 
+// RECOVERY_RATES: converts energyRecoveryRate strings to numeric multipliers
+// Used when an agent eats or rests - how much energy they recover per minute
+// Scale: veryLow (barely recovers) → veryHigh (bounces back quickly)
+const RECOVERY_RATES = {
+    veryLow: 0.25,
+    low: 0.50,
+    medium: 1.00,
+    high: 1.50,
+    veryHigh: 2.00
+};
 // SATISFACTION_EVENTS: point values for things that make agents happy or frustrated
 // Positive = good experience, negative = bad experience
 // Referenced whenever an agent completes, balks, or hits a threshold
