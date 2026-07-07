@@ -104,12 +104,15 @@ async function initSimulation(agentCount = 100) {
     const rawData = await loadPark();
     simulationState.parkMap = buildParkMap(rawData);
 
-    simulationState.queues = {};
-    Object.values(simulationState.parkMap.attractions).forEach(attraction => {
-        if (attraction.capacityPerHour !== null) {
-            simulationState.queues[attraction.id] = [];
-        }
-    });
+        simulationState.queues = {};
+        simulationState.stats.balkCountByAttraction = {};
+
+        Object.values(simulationState.parkMap.attractions).forEach(attraction => {
+            if (attraction.capacityPerHour !== null) {
+                simulationState.queues[attraction.id] = [];
+                simulationState.stats.balkCountByAttraction[attraction.id] = 0;
+            }
+        });
 
     simulationState.agents = [];
     simulationState.currentTick = 0;
@@ -118,7 +121,8 @@ async function initSimulation(agentCount = 100) {
         totalAgentsSpawned: 0,
         totalAgentsExited: 0,
         satisfactionByLand: {},
-        peakQueueByAttraction: {}
+        peakQueueByAttraction: {},
+        balkCountByAttraction: {}
     };
 
     Object.keys(simulationState.parkMap.lands).forEach(landId => {
@@ -243,6 +247,8 @@ function runTick() {
     simulationState.agents.forEach(agent => {
         processAgent(agent, simulationState.parkMap, simulationState.currentTick);
     });
+
+    processQueues(simulationState.parkMap);
 
     simulationState.currentTick++;
     recordTickStats();
@@ -466,7 +472,7 @@ function startTransit(agent, parkMap, currentTick) {
         agent.dynamic.satisfaction += SATISFACTION_EVENTS.longTransit;
     }
 
-    const drainRate = ENERGY_RATES[agent.fixed.energyDrainRate];
+    const drainRate = DRAIN_RATES[agent.fixed.energyDrainRate];
     agent.dynamic.energy = Math.max(0, agent.dynamic.energy - drainRate * minutes);
     agent.dynamic.stayMinutesRemaining -= minutes;
 
@@ -517,10 +523,139 @@ function processAgent(agent, parkMap, currentTick) {
     }
 
     const target = parkMap.attractions[agent.dynamic.targetAttraction];
+
     if (agent.dynamic.currentLand !== target.land) {
         startTransit(agent, parkMap, currentTick);
+        return;
+    }
+
+    if (target.capacityPerHour === null) {
+        completeNoQueueVisit(agent, target);
+        return;
+    }
+
+    const queue = simulationState.queues[target.id];
+    if (queue.includes(agent)) {
+        checkBalking(agent, target);
+    } else {
+        joinQueue(agent, target);
     }
 }
+
+// TYPE_TO_PREFERENCE: reverse of PREFERENCE_TO_TYPE - given a venue's singular
+// type, find the matching plural preferenceWeights key. Dining has no entry,
+// since dining is energy-driven, not a preference category an agent can favor
+const TYPE_TO_PREFERENCE = {
+    attraction: "attractions",
+    activity: "activities",
+    shopping: "shopping"
+};
+
+// isPreferredCategory: an agent's "preferred" category is whichever one carries
+// the highest weight in their preferenceWeights - this is what balkingMinutes
+// (preferred vs other) and completedPreferred vs completedNonPreferred both key off
+function isPreferredCategory(agent, attractionType) {
+    const category = TYPE_TO_PREFERENCE[attractionType];
+    if (!category) return false;
+
+    const weights = agent.fixed.preferenceWeights;
+    const maxWeight = Math.max(...Object.values(weights));
+    return weights[category] === maxWeight;
+}
+
+// getTickCapacity: converts an attraction's hourly capacity into how many
+// riders it can process in a single tick (1 tick = 1 minute)
+// Math.max(1, ...) guards against rounding an already-low capacity down to 0
+function getTickCapacity(attraction) {
+    return Math.max(1, Math.round(attraction.capacityPerHour / 60));
+}
+
+// joinQueue: adds an agent to an attraction's queue, only if they aren't
+// already in it - queue stores the actual agent objects, not just ids, since
+// there's no need for a separate lookup step this way
+function joinQueue(agent, attraction) {
+    const queue = simulationState.queues[attraction.id];
+    if (!queue.includes(agent)) {
+        queue.push(agent);
+        agent.dynamic.waitingMinutes = 0;
+    }
+}
+
+// checkBalking: runs once per tick for an agent already sitting in a queue
+// Increments their wait time, then checks it against the threshold that
+// matches whether this is their preferred category or not
+function checkBalking(agent, attraction) {
+    agent.dynamic.waitingMinutes++;
+
+    const preferred = isPreferredCategory(agent, attraction.type);
+    const threshold = preferred
+        ? agent.dynamic.balkingMinutes.preferred
+        : agent.dynamic.balkingMinutes.other;
+
+    if (agent.dynamic.waitingMinutes > threshold) {
+        const queue = simulationState.queues[attraction.id];
+        const index = queue.indexOf(agent);
+        if (index !== -1) queue.splice(index, 1);
+
+        // BALK COUNTER: track how many agents gave up at each attraction
+        // feeds the "most balked attraction" stat in the end-of-run results panel
+        simulationState.stats.balkCountByAttraction[attraction.id]++;
+
+        agent.dynamic.satisfaction += SATISFACTION_EVENTS.waitExceededBalk;
+        agent.dynamic.satisfaction += SATISFACTION_EVENTS.balkedAndLeft;
+        agent.dynamic.targetAttraction = null;
+        agent.dynamic.waitingMinutes = 0;
+    }
+}
+
+// processQueues: runs ONCE per tick, not per-agent (called directly from runTick)
+// For every attraction with an active queue, pulls off however many riders
+// this tick's capacity allows, front of the line first
+function processQueues(parkMap) {
+    Object.keys(simulationState.queues).forEach(attractionId => {
+        const queue = simulationState.queues[attractionId];
+        if (queue.length === 0) return;
+
+        const attraction = parkMap.attractions[attractionId];
+        const capacity = getTickCapacity(attraction);
+        const riders = queue.splice(0, capacity);
+
+        riders.forEach(agent => completeRide(agent, attraction));
+    });
+}
+
+// completeRide: applies satisfaction for finishing an attraction/activity
+// Distinguishes preferred vs non-preferred using the same helper as balking
+function completeRide(agent, attraction) {
+    const preferred = isPreferredCategory(agent, attraction.type);
+    agent.dynamic.satisfaction += preferred
+        ? SATISFACTION_EVENTS.completedPreferred
+        : SATISFACTION_EVENTS.completedNonPreferred;
+
+    agent.dynamic.currentAttraction = attraction.id;
+    agent.dynamic.targetAttraction = null;
+    agent.dynamic.waitingMinutes = 0;
+}
+
+// DINING_RECOVERY_MINUTES: assumed flat time an agent spends eating, used to
+// scale how much energy they recover - first real use of energyRecoveryRate
+const DINING_RECOVERY_MINUTES = 20;
+
+// completeNoQueueVisit: dining and shopping have no capacityPerHour, so they
+// skip the queue system entirely and resolve the instant an agent arrives
+function completeNoQueueVisit(agent, attraction) {
+    if (attraction.type === "dining") {
+        const recoveryRate = RECOVERY_RATES[agent.fixed.energyRecoveryRate];
+        agent.dynamic.energy = Math.min(100, agent.dynamic.energy + recoveryRate * DINING_RECOVERY_MINUTES);
+        agent.dynamic.satisfaction += SATISFACTION_EVENTS.diningCompleted;
+    } else {
+        agent.dynamic.satisfaction += SATISFACTION_EVENTS.shoppingCompleted;
+    }
+
+    agent.dynamic.currentAttraction = attraction.id;
+    agent.dynamic.targetAttraction = null;
+}
+
 
 export { 
     simulationState, 
