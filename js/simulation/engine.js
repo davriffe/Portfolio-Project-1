@@ -282,14 +282,255 @@ function recordTickStats() {
 }
 
 // endSimulation: called when all agents have exited after park close
-// Freezes simulation state for viz to display final summary
-// Console logs provide quick sanity check during development
-
+// Builds run summary, saves to localStorage, triggers results panel
+// Full time series (satisfactionByLand) only goes in JSON export - too large for localStorage
 function endSimulation() {
     simulationState.status = "ended";
+
+    // BUILD RUN SUMMARY
+    // Derived values calculated once here rather than tracked tick by tick
+    const agentSummary = simulationState.agents.map(agent => ({
+        archetypeId: agent.archetypeId,
+        finalSatisfaction: Math.round(agent.dynamic.satisfaction),
+        finalEnergy: Math.round(agent.dynamic.energy),
+        finalLand: agent.dynamic.currentLand
+    }));
+
+    // Average satisfaction per archetype - preview of radar chart data
+    const archetypeIds = [...new Set(agentSummary.map(a => a.archetypeId))];
+    const satisfactionByArchetype = {};
+    archetypeIds.forEach(id => {
+        const group = agentSummary.filter(a => a.archetypeId === id);
+        satisfactionByArchetype[id] = Math.round(
+            group.reduce((sum, a) => sum + a.finalSatisfaction, 0) / group.length
+        );
+    });
+
+    // Park rating: average satisfaction across all agents, 0-100
+    const parkRating = Math.round(
+        agentSummary.reduce((sum, a) => sum + a.finalSatisfaction, 0) / agentSummary.length
+    );
+
+    // Most congested attraction by peak queue length
+    const peakEntries = Object.entries(simulationState.stats.peakQueueByAttraction);
+    const mostCongested = peakEntries.length > 0
+        ? peakEntries.reduce((a, b) => b[1] > a[1] ? b : a)[0]
+        : null;
+
+    // Most balked attraction by balk count
+    const balkEntries = Object.entries(simulationState.stats.balkCountByAttraction);
+    const mostBalked = balkEntries.length > 0
+        ? balkEntries.reduce((a, b) => b[1] > a[1] ? b : a)[0]
+        : null;
+
+    // Land average satisfaction summary (from time series)
+    const landSummary = {};
+    Object.entries(simulationState.stats.satisfactionByLand).forEach(([landId, readings]) => {
+        landSummary[landId] = readings.length > 0
+            ? Math.round(readings.reduce((s, v) => s + v, 0) / readings.length)
+            : null;
+    });
+
+    // RUN RECORD: compact object stored in localStorage and shown in history table
+    // Does NOT include full time series - keeps each record under 1KB
+    const runRecord = {
+        runId: Date.now(),
+        runDate: new Date().toLocaleString(),
+        totalTicks: simulationState.currentTick,
+        agentCount: simulationState.stats.totalAgentsSpawned,
+        parkRating,
+        mostCongested,
+        mostBalked,
+        satisfactionByArchetype,
+        landSummary,
+        agentSummary
+    };
+
+    // FULL EXPORT DATA: includes time series, used only for JSON download
+    const fullExportData = {
+        ...runRecord,
+        satisfactionByLand: simulationState.stats.satisfactionByLand,
+        peakQueueByAttraction: simulationState.stats.peakQueueByAttraction,
+        balkCountByAttraction: simulationState.stats.balkCountByAttraction
+    };
+
+    // LOCALSTORAGE: save run record, keep last 20 runs max
+    // Each record is compact (no time series) so 20 runs stays well under 5MB limit
+    try {
+        const stored = JSON.parse(localStorage.getItem("aethermoor_runs") || "[]");
+        stored.unshift(runRecord);
+        if (stored.length > 20) stored.splice(20);
+        localStorage.setItem("aethermoor_runs", JSON.stringify(stored));
+    } catch (e) {
+        console.warn("localStorage save failed:", e);
+    }
+
     console.log("Simulation ended at tick:", simulationState.currentTick);
     console.log("Total agents spawned:", simulationState.stats.totalAgentsSpawned);
     console.log("Total agents exited:", simulationState.stats.totalAgentsExited);
+    console.log("Park rating:", parkRating);
+
+    showResultsPanel(runRecord, fullExportData);
+}
+
+// arrayToCSV: converts an array of flat objects into a CSV string
+// Headers pulled from first object's keys - only works on flat objects
+function arrayToCSV(rows) {
+    if (rows.length === 0) return "";
+    const headers = Object.keys(rows[0]);
+    const lines = rows.map(row =>
+        headers.map(h => JSON.stringify(row[h] ?? "")).join(",")
+    );
+    return [headers.join(","), ...lines].join("\n");
+}
+
+// triggerDownload: creates a temporary link element, clicks it, then cleans up
+function triggerDownload(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// showResultsPanel: injects end-of-run overlay into the page
+// Shows current run stats, run history from localStorage, and export options
+// Dismissing returns to the paused end state so D3/Three.js panels are still usable
+function showResultsPanel(runRecord, fullExportData) {
+    // Remove any existing panel first (e.g. if user ran sim twice without dismissing)
+    const existing = document.getElementById("results-panel");
+    if (existing) existing.remove();
+
+    // Load run history from localStorage
+    let history = [];
+    try {
+        history = JSON.parse(localStorage.getItem("aethermoor_runs") || "[]");
+    } catch (e) {
+        history = [];
+    }
+
+    // Build archetype satisfaction rows
+    const archetypeRows = Object.entries(runRecord.satisfactionByArchetype)
+        .map(([id, score]) => `
+            <tr>
+                <td style="color:var(--text-secondary);padding:2px 8px 2px 0;">${id.replace(/_/g, " ")}</td>
+                <td style="text-align:right;">${score}</td>
+            </tr>`)
+        .join("");
+
+    // Build run history rows (most recent first, already sorted by localStorage save)
+    const historyRows = history.map((run, i) => `
+        <tr style="opacity:${i === 0 ? "1" : "0.6"};">
+            <td style="padding:2px 8px 2px 0;">${run.runDate}</td>
+            <td style="text-align:right;">${run.agentCount}</td>
+            <td style="text-align:right;">${run.parkRating}</td>
+            <td style="padding-left:8px;color:var(--text-secondary);">
+                ${run.mostCongested ? run.mostCongested.replace(/_/g, " ") : "—"}
+            </td>
+        </tr>`).join("");
+
+    const panel = document.createElement("div");
+    panel.id = "results-panel";
+    panel.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #252525;
+        border: 1px solid #444444;
+        border-radius: 8px;
+        padding: 1.5rem;
+        width: 520px;
+        max-height: 80vh;
+        overflow-y: auto;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        color: #C8C8C8;
+        z-index: 1000;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    `;
+
+    panel.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1rem;">
+            <span style="font-size:1rem;">Aethermoor — Run Complete</span>
+            <span style="color:#7A7A7A;">${runRecord.runDate}</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;">
+            <div style="background:#1A1A1A;border-radius:4px;padding:0.75rem;">
+                <div style="color:#7A7A7A;margin-bottom:0.25rem;">Park Rating</div>
+                <div style="font-size:1.5rem;">${runRecord.parkRating}<span style="font-size:0.7rem;color:#7A7A7A;">/100</span></div>
+            </div>
+            <div style="background:#1A1A1A;border-radius:4px;padding:0.75rem;">
+                <div style="color:#7A7A7A;margin-bottom:0.25rem;">Agents</div>
+                <div style="font-size:1.5rem;">${runRecord.agentCount}</div>
+            </div>
+            <div style="background:#1A1A1A;border-radius:4px;padding:0.75rem;">
+                <div style="color:#7A7A7A;margin-bottom:0.25rem;">Most Congested</div>
+                <div>${runRecord.mostCongested ? runRecord.mostCongested.replace(/_/g, " ") : "—"}</div>
+            </div>
+            <div style="background:#1A1A1A;border-radius:4px;padding:0.75rem;">
+                <div style="color:#7A7A7A;margin-bottom:0.25rem;">Most Balked</div>
+                <div>${runRecord.mostBalked ? runRecord.mostBalked.replace(/_/g, " ") : "—"}</div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+            <div style="color:#7A7A7A;margin-bottom:0.5rem;">Satisfaction by Archetype</div>
+            <table style="width:100%;border-collapse:collapse;">${archetypeRows}</table>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+            <div style="color:#7A7A7A;margin-bottom:0.5rem;">Run History (this session)</div>
+            <table style="width:100%;border-collapse:collapse;">
+                <tr style="color:#7A7A7A;border-bottom:1px solid #333333;">
+                    <td style="padding:2px 8px 4px 0;">Date</td>
+                    <td style="text-align:right;">Agents</td>
+                    <td style="text-align:right;">Rating</td>
+                    <td style="padding-left:8px;">Top Congestion</td>
+                </tr>
+                ${historyRows}
+            </table>
+        </div>
+
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button id="rp-run-again" style="flex:1;">Run Again</button>
+            <button id="rp-export-json" style="flex:1;">Export JSON</button>
+            <button id="rp-export-csv" style="flex:1;">Export CSV</button>
+            <button id="rp-dismiss" style="flex:1;color:#7A7A7A;">Dismiss</button>
+        </div>
+    `;
+
+    document.body.appendChild(panel);
+
+    // Wire buttons
+    document.getElementById("rp-run-again").addEventListener("click", () => {
+        panel.remove();
+        reset();
+        play();
+    });
+
+    document.getElementById("rp-export-json").addEventListener("click", () => {
+        triggerDownload(
+            JSON.stringify(fullExportData, null, 2),
+            `aethermoor_run_${runRecord.runId}.json`,
+            "application/json"
+        );
+    });
+
+    document.getElementById("rp-export-csv").addEventListener("click", () => {
+        triggerDownload(
+            arrayToCSV(runRecord.agentSummary),
+            `aethermoor_agents_${runRecord.runId}.csv`,
+            "text/csv"
+        );
+    });
+
+    document.getElementById("rp-dismiss").addEventListener("click", () => {
+        panel.remove();
+    });
 }
 
 // SIMULATION CONTROLS: functions called directly by the UI control panel
@@ -482,6 +723,8 @@ function startTransit(agent, parkMap, currentTick) {
         departTick: currentTick,
         arriveTick: currentTick + minutes
     };
+
+}
 
 // checkTransitArrival: finalizes a transit once enough ticks have passed
 // Only updates currentLand - does NOT touch targetAttraction, since the agent
