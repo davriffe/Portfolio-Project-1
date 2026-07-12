@@ -301,8 +301,6 @@ function endSimulation() {
 
 async function play() {
     if (simulationState.status === "idle") {
-        window.__loggedTransitStart = false;
-        window.__loggedTransitArrival = false;
         await initSimulation(agentCountSetting);
     }
     simulationState.status = "playing";
@@ -485,13 +483,6 @@ function startTransit(agent, parkMap, currentTick) {
         arriveTick: currentTick + minutes
     };
 
-    // TEMPORARY TEST - confirms transit starts correctly, remove once confirmed
-    if (!window.__loggedTransitStart) {
-        console.log("Transit started:", fromLand, "->", toLand, ", arriving tick", currentTick + minutes);
-        window.__loggedTransitStart = true;
-    }
-}
-
 // checkTransitArrival: finalizes a transit once enough ticks have passed
 // Only updates currentLand - does NOT touch targetAttraction, since the agent
 // still needs to queue at the actual attraction once they're in the right land
@@ -500,12 +491,6 @@ function checkTransitArrival(agent, currentTick) {
         const arrivedLand = agent.dynamic.transit.toLand;
         agent.dynamic.currentLand = arrivedLand;
         agent.dynamic.transit = null;
-
-        // TEMPORARY TEST - confirms transit completes correctly, remove once confirmed
-        if (!window.__loggedTransitArrival) {
-            console.log("Transit arrived: now at", arrivedLand);
-            window.__loggedTransitArrival = true;
-        }
     }
 }
 
