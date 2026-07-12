@@ -301,6 +301,8 @@ function endSimulation() {
 
 async function play() {
     if (simulationState.status === "idle") {
+        window.__loggedTransitStart = false;
+        window.__loggedTransitArrival = false;
         await initSimulation(agentCountSetting);
     }
     simulationState.status = "playing";
@@ -512,6 +514,11 @@ function checkTransitArrival(agent, currentTick) {
 // Has a target but not there yet? start traveling. Otherwise: arrived,
 // ready to queue - step 3, not built yet
 function processAgent(agent, parkMap, currentTick) {
+
+    // Exit check runs first - an agent who should leave does nothing else this tick
+    checkAgentExit(agent, currentTick);
+    if (agent.dynamic.currentLand === "exited") return;
+
     if (agent.dynamic.transit) {
         checkTransitArrival(agent, currentTick);
         return;
@@ -656,6 +663,41 @@ function completeNoQueueVisit(agent, attraction) {
     agent.dynamic.targetAttraction = null;
 }
 
+// checkAgentExit: runs every tick for every agent via processAgent
+// Decrements stayMinutesRemaining each tick the agent is actively waiting in a queue
+// Triggers exit when time runs out OR when park is closed and agent has no transit
+// Removes agent from any active queue before marking exited - prevents ghost queue entries
+function checkAgentExit(agent, currentTick) {
+
+    // Drain stay time for agents sitting in queues - transit already drains in startTransit
+    if (agent.dynamic.currentLand !== "exited") {
+        const inQueue = Object.values(simulationState.queues).some(
+            queue => queue.includes(agent)
+        );
+        if (inQueue) {
+            agent.dynamic.stayMinutesRemaining--;
+        }
+    }
+
+    // Check if agent should leave - either out of time or park is closed
+    const outOfTime = agent.dynamic.stayMinutesRemaining <= 0;
+    const parkClosed = simulationState.currentTick >= PARK_CLOSED_TICK;
+    const notTransiting = !agent.dynamic.transit;
+
+    if ((outOfTime || parkClosed) && notTransiting && 
+         agent.dynamic.currentLand !== "exited") {
+
+        // Remove from any queue they're sitting in
+        Object.values(simulationState.queues).forEach(queue => {
+            const index = queue.indexOf(agent);
+            if (index !== -1) queue.splice(index, 1);
+        });
+
+        agent.dynamic.currentLand = "exited";
+        agent.dynamic.targetAttraction = null;
+        simulationState.stats.totalAgentsExited++;
+    }
+}
 
 export { 
     simulationState, 
