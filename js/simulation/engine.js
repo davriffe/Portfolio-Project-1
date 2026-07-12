@@ -828,19 +828,19 @@ function checkBalking(agent, attraction) {
         : agent.dynamic.balkingMinutes.other;
 
     if (agent.dynamic.waitingMinutes > threshold) {
-        const queue = simulationState.queues[attraction.id];
-        const index = queue.indexOf(agent);
-        if (index !== -1) queue.splice(index, 1);
+            const queue = simulationState.queues[attraction.id];
+            const index = queue.indexOf(agent);
+            if (index !== -1) queue.splice(index, 1);
 
-        // BALK COUNTER: track how many agents gave up at each attraction
-        // feeds the "most balked attraction" stat in the end-of-run results panel
-        simulationState.stats.balkCountByAttraction[attraction.id]++;
+            simulationState.stats.balkCountByAttraction[attraction.id]++;
 
-        agent.dynamic.satisfaction += SATISFACTION_EVENTS.waitExceededBalk;
-        agent.dynamic.satisfaction += SATISFACTION_EVENTS.balkedAndLeft;
-        agent.dynamic.targetAttraction = null;
-        agent.dynamic.waitingMinutes = 0;
-    }
+            agent.dynamic.satisfaction += SATISFACTION_EVENTS.waitExceededBalk;
+            agent.dynamic.satisfaction += SATISFACTION_EVENTS.balkedAndLeft;
+            agent.dynamic.satisfaction = Math.min(100, Math.max(0, agent.dynamic.satisfaction));
+
+            agent.dynamic.targetAttraction = null;
+            agent.dynamic.waitingMinutes = 0;
+        }
 }
 
 // processQueues: runs ONCE per tick, not per-agent (called directly from runTick)
@@ -861,11 +861,14 @@ function processQueues(parkMap) {
 
 // completeRide: applies satisfaction for finishing an attraction/activity
 // Distinguishes preferred vs non-preferred using the same helper as balking
+// completeRide: cap satisfaction at 100, floor at 0
 function completeRide(agent, attraction) {
     const preferred = isPreferredCategory(agent, attraction.type);
     agent.dynamic.satisfaction += preferred
         ? SATISFACTION_EVENTS.completedPreferred
         : SATISFACTION_EVENTS.completedNonPreferred;
+
+    agent.dynamic.satisfaction = Math.min(100, Math.max(0, agent.dynamic.satisfaction));
 
     agent.dynamic.currentAttraction = attraction.id;
     agent.dynamic.targetAttraction = null;
@@ -878,6 +881,7 @@ const DINING_RECOVERY_MINUTES = 20;
 
 // completeNoQueueVisit: dining and shopping have no capacityPerHour, so they
 // skip the queue system entirely and resolve the instant an agent arrives
+// completeNoQueueVisit: cap satisfaction at 100, floor at 0
 function completeNoQueueVisit(agent, attraction) {
     if (attraction.type === "dining") {
         const recoveryRate = RECOVERY_RATES[agent.fixed.energyRecoveryRate];
@@ -886,6 +890,8 @@ function completeNoQueueVisit(agent, attraction) {
     } else {
         agent.dynamic.satisfaction += SATISFACTION_EVENTS.shoppingCompleted;
     }
+
+    agent.dynamic.satisfaction = Math.min(100, Math.max(0, agent.dynamic.satisfaction));
 
     agent.dynamic.currentAttraction = attraction.id;
     agent.dynamic.targetAttraction = null;
