@@ -5,6 +5,7 @@
 // Same role as server.R reactive functions in R Shiny - input changes drive state changes
 
 import { play, pause, reset, setSpeed, setAgentCount } from './simulation/engine.js';
+import { initScene } from './viz/scene.js';
 
 // PLAY / PAUSE / RESET BUTTONS
 // Pure pass-through - a click carries no data, so we just call the matching function
@@ -12,7 +13,15 @@ const btnPlay = document.getElementById('btn-play');
 const btnPause = document.getElementById('btn-pause');
 const btnReset = document.getElementById('btn-reset');
 
+// The Three.js scene (and its own render loop) only needs to spin up once -
+// scene.js guards against re-init too, but this keeps the intent explicit here
+let sceneInitialized = false;
+
 btnPlay.addEventListener('click', () => {
+    if (!sceneInitialized) {
+        initScene();
+        sceneInitialized = true;
+    }
     play();
 });
 
