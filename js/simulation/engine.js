@@ -183,23 +183,43 @@ function getSpawnChance(currentTick) {
     return 0;
 }
 
+// BASELINE_AGENT_COUNT: the population getSpawnChance/isInArrivalWindow's curve
+// shape was tuned against - one spawn attempt per tick reliably produces ~100
+// arrivals across a full day (matches the slider's original 100 default).
+//
+// BUG FIX (2026-07-15): raising the agent cap to 1000 (see setAgentCount) had
+// no real effect above ~150 agents - trySpawnAgent only ever rolled ONE spawn
+// attempt per tick no matter how high agentCount was, and the arrival curve
+// itself caps out around ~100-150 total arrivals per day at that throughput.
+// Setting the slider to 650 still only produced ~97 agents because there was
+// nothing to reach for. Fix: scale attempts-per-tick with agentCount relative
+// to BASELINE_AGENT_COUNT, so the curve's shape (weighted by getSpawnChance)
+// stays the same but throughput scales up enough to actually hit higher targets.
+const BASELINE_AGENT_COUNT = 100;
+
 // trySpawnAgent: orchestrates all spawn checks in order
-// Early returns if any check fails - efficient and readable
+// Runs multiple independent attempts per tick (see BASELINE_AGENT_COUNT above)
+// instead of always exactly one, so higher agentCount targets are reachable
 // Only creates agent if tick, count, chance, and arrival window all pass
 
 function trySpawnAgent(agentCount) {
     if (simulationState.currentTick >= SPAWN_CUTOFF_TICK) return;
-    if (simulationState.agents.length >= agentCount) return;
 
-    const spawnChance = getSpawnChance(simulationState.currentTick);
-    if (Math.random() > spawnChance) return;
+    const attemptsPerTick = Math.max(1, Math.ceil(agentCount / BASELINE_AGENT_COUNT));
 
-    const archetypeId = selectArchetype();
-    if (!isInArrivalWindow(archetypeId, simulationState.currentTick)) return;
+    for (let i = 0; i < attemptsPerTick; i++) {
+        if (simulationState.agents.length >= agentCount) return;
 
-    const agent = createAgent(archetypeId);
-    simulationState.agents.push(agent);
-    simulationState.stats.totalAgentsSpawned++;
+        const spawnChance = getSpawnChance(simulationState.currentTick);
+        if (Math.random() > spawnChance) continue;
+
+        const archetypeId = selectArchetype();
+        if (!isInArrivalWindow(archetypeId, simulationState.currentTick)) continue;
+
+        const agent = createAgent(archetypeId);
+        simulationState.agents.push(agent);
+        simulationState.stats.totalAgentsSpawned++;
+    }
 }
 
 // TICK LOOP VARIABLES
