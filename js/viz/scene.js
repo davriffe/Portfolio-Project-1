@@ -59,8 +59,10 @@ const ARCHETYPE_COLORS = {
     vlogger: '#F15BB5'
 };
 
-// generous ceiling - the agent-count slider tops out at 200, this leaves headroom
-const MAX_AGENTS_PER_ARCHETYPE = 220;
+// Agent-count slider tops out at 1000 (js/simulation/engine.js setAgentCount, 2026-07-15).
+// Sized to the full 1000 rather than 1000/7 archetypes, since spawn distribution
+// isn't perfectly even and one archetype could end up holding most of the park
+const MAX_AGENTS_PER_ARCHETYPE = 1000;
 
 const AGENT_HEIGHT = 0.8;
 const AGENT_REST_Y = AGENT_HEIGHT / 2;

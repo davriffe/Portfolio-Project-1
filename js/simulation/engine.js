@@ -578,7 +578,10 @@ function setSpeed(multiplier) {
 }
 
 function setAgentCount(count) {
-    agentCountSetting = Math.min(Math.max(count, 10), 200);
+    // Cap raised 200 -> 1000 (2026-07-15) so higher agent counts can actually
+    // stress the queues - satisfaction was reading unrealistically high at 100-200
+    // agents because attractions were rarely at capacity
+    agentCountSetting = Math.min(Math.max(count, 10), 1000);
 }
 
 // TIMELINE / HISTORY
@@ -591,7 +594,7 @@ function setAgentCount(count) {
 // TODO V2: connect seekToTick() to timeline scrubber drag event in viz layer
 // TODO V2: add timeline bar component to index.html  
 // TODO V2: style timeline to disappear when cursor not at bottom of screen
-// TODO V2: consider AWS for larger agent counts beyond 200
+// TODO V2: consider AWS for larger agent counts beyond 1000
 
 function captureSnapshot() {
     if (simulationState.currentTick % snapshotInterval !== 0) return;
