@@ -15,15 +15,11 @@ const btnPlay = document.getElementById('btn-play');
 const btnPause = document.getElementById('btn-pause');
 const btnReset = document.getElementById('btn-reset');
 
-// The Three.js scene (and its own render loop) only needs to spin up once -
-// scene.js guards against re-init too, but this keeps the intent explicit here
-let sceneInitialized = false;
+// Scene builds immediately on load so the park is visible before the sim starts -
+// scene.js's own `initialized` guard makes this safe to also not worry about here
+initScene();
 
 btnPlay.addEventListener('click', () => {
-    if (!sceneInitialized) {
-        initScene();
-        sceneInitialized = true;
-    }
     play();
 });
 
