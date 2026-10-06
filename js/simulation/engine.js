@@ -757,6 +757,56 @@ function checkTransitArrival(agent, currentTick) {
         const arrivedLand = agent.dynamic.transit.toLand;
         agent.dynamic.currentLand = arrivedLand;
         agent.dynamic.transit = null;
+        // New land, new local coordinate system - wherever they were
+        // standing in the old land is meaningless here. null tells
+        // startInternalTransit() to assume they're entering from the
+        // land's center, which is the best guess without a per-connection
+        // entry-point lookup (only Ironhaven Cove has connectionPoints so far).
+        agent.dynamic.landPosition = null;
+    }
+}
+
+// INTERNAL_WALK_SPEED_MPM: assumed guest walking pace within a land, in
+// meters per sim-minute. ~80 m/min is a brisk-but-not-rushed park stroll
+// (~4.8 km/h). Only ever used for venues that have entrancePosition/position
+// data (Ironhaven Cove as of 2026-09-18) - every other land has no position
+// data yet, so processAgent() never calls this for them and behavior there
+// is unchanged.
+const INTERNAL_WALK_SPEED_MPM = 80;
+
+// startInternalTransit: begins moving an agent to a target attraction's
+// entrance WITHIN their current land, using real meter positions instead of
+// the connections graph - there's no "connection" between two venues in the
+// same land, just a distance. Mirrors startTransit()'s lump-sum cost pattern:
+// time + energy spent up front, position updated only on arrival.
+function startInternalTransit(agent, target, currentTick) {
+    const from = agent.dynamic.landPosition || { x: 0, z: 0 };
+    const to = target.entrancePosition || target.position;
+
+    const dx = to.x - from.x;
+    const dz = to.z - from.z;
+    const distanceMeters = Math.sqrt(dx * dx + dz * dz);
+    const minutes = Math.max(1, Math.round(distanceMeters / INTERNAL_WALK_SPEED_MPM));
+
+    const drainRate = DRAIN_RATES[agent.fixed.energyDrainRate];
+    agent.dynamic.energy = Math.max(0, agent.dynamic.energy - drainRate * minutes);
+    agent.dynamic.stayMinutesRemaining -= minutes;
+
+    agent.dynamic.internalTransit = {
+        fromPosition: from,
+        toPosition: to,
+        departTick: currentTick,
+        arriveTick: currentTick + minutes
+    };
+}
+
+// checkInternalTransitArrival: finalizes an internal-land walk once enough
+// ticks have passed. Updates landPosition so the agent is "standing at" the
+// target's entrance, ready to queue next tick - mirrors checkTransitArrival().
+function checkInternalTransitArrival(agent, currentTick) {
+    if (currentTick >= agent.dynamic.internalTransit.arriveTick) {
+        agent.dynamic.landPosition = agent.dynamic.internalTransit.toPosition;
+        agent.dynamic.internalTransit = null;
     }
 }
 
@@ -775,6 +825,11 @@ function processAgent(agent, parkMap, currentTick) {
         return;
     }
 
+    if (agent.dynamic.internalTransit) {
+        checkInternalTransitArrival(agent, currentTick);
+        return;
+    }
+
     if (!agent.dynamic.targetAttraction) {
         decideNextAction(agent, parkMap);
         return;
@@ -785,6 +840,20 @@ function processAgent(agent, parkMap, currentTick) {
     if (agent.dynamic.currentLand !== target.land) {
         startTransit(agent, parkMap, currentTick);
         return;
+    }
+
+    // Internal (within-land) walk: only venues with real position data
+    // (Ironhaven Cove so far) go through this - everywhere else, targetPoint
+    // is undefined and this block is skipped entirely, so arrival stays
+    // instant exactly as before.
+    const targetPoint = target.entrancePosition || target.position;
+    if (targetPoint) {
+        const at = agent.dynamic.landPosition;
+        const alreadyThere = at && at.x === targetPoint.x && at.z === targetPoint.z;
+        if (!alreadyThere) {
+            startInternalTransit(agent, target, currentTick);
+            return;
+        }
     }
 
     if (target.capacityPerHour === null) {

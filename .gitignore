@@ -1,0 +1,8 @@
+# Reference material (hand-drawn layout scans, comparison images) —
+# not part of the shipped project, and these files are large. Public repo,
+# so personal scans and screenshots stay local-only.
+References/
+
+# OS/editor junk
+.DS_Store
+Thumbs.db

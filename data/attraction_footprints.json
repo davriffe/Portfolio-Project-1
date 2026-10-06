@@ -1,0 +1,571 @@
+{
+  "_meta": {
+    "description": "Planning-stage footprint (width x depth x height, meters) for every Aethermoor venue. All values are placeholder category estimates as of 2026-09-16, not final designs -- refine per venue as each land gets actually designed and flip estimateStatus to 'confirmed'. Widths/depths are derived from a total footprint area per category using a typical width:depth aspect ratio (e.g. coasters are long and narrow at ~3:1, show buildings are closer to square at ~1.3:1, flat rides/towers are circular at 1:1) -- they are bounding-envelope estimates for layout planning and non-overlap checks, not literal building blueprints.",
+    "gridScale": "1 unit = 1 meter, matches data/park_config.json and scene.js",
+    "heightPolicy": "Nothing in the park should exceed ~58m (190ft). FAA requires obstruction lighting above 61m (200ft AGL); Disney's real parks stay under that with a deliberate buffer (Tower of Terror/Expedition Everest at 199ft/60.7m, Cinderella Castle at 189ft/57.6m). Observatory Castle is Aethermoor's tallest structure at 48.8m (160ft), the park's primary weenie.",
+    "totalFootprintAreaM2": 122229,
+    "totalFootprintAcres": 30.2,
+    "lastUpdated": "2026-09-16",
+    "sourceOfTruth": "This file is the canonical source for venue dimensions. The Notion 'Footprint & Height Tracker' database mirrors this file for planning/review -- update this file first, then resync Notion, not the other way around."
+  },
+  "Witchfire Run": {
+    "land": "the_hollow",
+    "venueType": "attraction",
+    "category": "Roller Coaster",
+    "footprint": {
+      "widthM": 220.8,
+      "depthM": 73.6,
+      "heightM": 44.2,
+      "areaM2": 16258
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Lift hill height",
+    "notes": "Large thrill coaster baseline"
+  },
+  "The Coven's March": {
+    "land": "the_hollow",
+    "venueType": "attraction",
+    "category": "Roller Coaster (compact)",
+    "footprint": {
+      "widthM": 148.5,
+      "depthM": 59.4,
+      "heightM": 29.0,
+      "areaM2": 8826
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Mid-size coaster",
+    "notes": "Flagged bottleneck in engine"
+  },
+  "Rite of the Coven": {
+    "land": "the_hollow",
+    "venueType": "attraction",
+    "category": "Dark Ride",
+    "footprint": {
+      "widthM": 81.5,
+      "depthM": 62.7,
+      "heightM": 16.8,
+      "areaM2": 5111
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Show building facade height",
+    "notes": ""
+  },
+  "Rite of the Hollow Circle": {
+    "land": "the_hollow",
+    "venueType": "activity",
+    "category": "Show",
+    "footprint": {
+      "widthM": 33.4,
+      "depthM": 22.3,
+      "heightM": 9.1,
+      "areaM2": 743
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Small amphitheater",
+    "notes": ""
+  },
+  "The Blackwood Brew Hall": {
+    "land": "the_hollow",
+    "venueType": "dining",
+    "category": "Tavern",
+    "footprint": {
+      "widthM": 26.7,
+      "depthM": 19.1,
+      "heightM": 8.5,
+      "areaM2": 511
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story dining facade",
+    "notes": ""
+  },
+  "The Iron Sigil": {
+    "land": "the_hollow",
+    "venueType": "shopping",
+    "category": "Large Shop",
+    "footprint": {
+      "widthM": 24.2,
+      "depthM": 17.3,
+      "heightM": 9.1,
+      "areaM2": 418
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story shop facade",
+    "notes": ""
+  },
+  "The Heart of the Forest": {
+    "land": "enchanted_forest",
+    "venueType": "attraction",
+    "category": "Dark Ride",
+    "footprint": {
+      "widthM": 81.5,
+      "depthM": 62.7,
+      "heightM": 16.8,
+      "areaM2": 5111
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Show building facade height",
+    "notes": "Flagged bottleneck in engine"
+  },
+  "Bramble Run": {
+    "land": "enchanted_forest",
+    "venueType": "attraction",
+    "category": "Family Coaster",
+    "footprint": {
+      "widthM": 123.8,
+      "depthM": 56.3,
+      "heightM": 19.8,
+      "areaM2": 6968
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Family-coaster lift height",
+    "notes": ""
+  },
+  "Path of the Faelights": {
+    "land": "enchanted_forest",
+    "venueType": "attraction",
+    "category": "Walkthrough",
+    "footprint": {
+      "widthM": 61.0,
+      "depthM": 30.5,
+      "heightM": 9.1,
+      "areaM2": 1858
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Winding self-paced path, low structures",
+    "notes": ""
+  },
+  "The Faerie Circle Gathering": {
+    "land": "enchanted_forest",
+    "venueType": "activity",
+    "category": "Meet and Greet",
+    "footprint": {
+      "widthM": 18.3,
+      "depthM": 15.2,
+      "heightM": 4.6,
+      "areaM2": 279
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Outdoor clearing, minimal structure",
+    "notes": "Lowest capacity in park"
+  },
+  "Songs of the Grove": {
+    "land": "enchanted_forest",
+    "venueType": "activity",
+    "category": "Sing-along/Show",
+    "footprint": {
+      "widthM": 28.9,
+      "depthM": 19.3,
+      "heightM": 7.6,
+      "areaM2": 557
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Small outdoor amphitheater",
+    "notes": ""
+  },
+  "Moss and Melody Market": {
+    "land": "enchanted_forest",
+    "venueType": "shopping",
+    "category": "Shop",
+    "footprint": {
+      "widthM": 19.0,
+      "depthM": 14.6,
+      "heightM": 7.6,
+      "areaM2": 279
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story shop facade",
+    "notes": ""
+  },
+  "The Golden Acorn": {
+    "land": "enchanted_forest",
+    "venueType": "dining",
+    "category": "Restaurant",
+    "footprint": {
+      "widthM": 30.2,
+      "depthM": 21.5,
+      "heightM": 8.5,
+      "areaM2": 650
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story dining facade",
+    "notes": ""
+  },
+  "Celestial Carousel": {
+    "land": "lunara",
+    "venueType": "attraction",
+    "category": "Flat Ride",
+    "footprint": {
+      "widthM": 33.4,
+      "depthM": 33.4,
+      "heightM": 10.7,
+      "areaM2": 1115
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Carousel canopy height (circular footprint)",
+    "notes": ""
+  },
+  "Observatory Ascent": {
+    "land": "lunara",
+    "venueType": "attraction",
+    "category": "Dark Ride",
+    "footprint": {
+      "widthM": 81.5,
+      "depthM": 62.7,
+      "heightM": 16.8,
+      "areaM2": 5111
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Show building facade height",
+    "notes": "CATEGORY CONFLICT: reconciled tables say Dark Ride, original OneNote paste said Family Coaster - unresolved, flagged for David"
+  },
+  "Stargazer's Keep": {
+    "land": "lunara",
+    "venueType": "activity",
+    "category": "Walkthrough",
+    "footprint": {
+      "widthM": 61.0,
+      "depthM": 30.5,
+      "heightM": 12.2,
+      "areaM2": 1858
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Taller interior, telescope-adjacent",
+    "notes": ""
+  },
+  "The Lunar Market": {
+    "land": "lunara",
+    "venueType": "shopping",
+    "category": "Shop",
+    "footprint": {
+      "widthM": 19.0,
+      "depthM": 14.6,
+      "heightM": 8.5,
+      "areaM2": 279
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story shop facade",
+    "notes": ""
+  },
+  "The Astronomer's Table": {
+    "land": "lunara",
+    "venueType": "dining",
+    "category": "Restaurant",
+    "footprint": {
+      "widthM": 30.2,
+      "depthM": 21.5,
+      "heightM": 9.8,
+      "areaM2": 650
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story dining facade",
+    "notes": ""
+  },
+  "The Wandering Guild": {
+    "land": "crossroads",
+    "venueType": "activity",
+    "category": "Meet and Greet",
+    "footprint": {
+      "widthM": 18.3,
+      "depthM": 15.2,
+      "heightM": 6.1,
+      "areaM2": 279
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Small structure",
+    "notes": ""
+  },
+  "Tales of the Traveling Bard": {
+    "land": "crossroads",
+    "venueType": "activity",
+    "category": "Live Show",
+    "footprint": {
+      "widthM": 33.4,
+      "depthM": 22.3,
+      "heightM": 9.1,
+      "areaM2": 743
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Small amphitheater",
+    "notes": ""
+  },
+  "Guildhall of the Crossroads": {
+    "land": "crossroads",
+    "venueType": "shopping",
+    "category": "Large Shop",
+    "footprint": {
+      "widthM": 25.5,
+      "depthM": 18.2,
+      "heightM": 9.8,
+      "areaM2": 465
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story shop facade",
+    "notes": ""
+  },
+  "The Grand Bazaar": {
+    "land": "crossroads",
+    "venueType": "shopping",
+    "category": "Market",
+    "footprint": {
+      "widthM": 20.6,
+      "depthM": 15.8,
+      "heightM": 7.9,
+      "areaM2": 325
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story shop facade",
+    "notes": ""
+  },
+  "Curios and Curiosities": {
+    "land": "crossroads",
+    "venueType": "shopping",
+    "category": "Specialty Shop",
+    "footprint": {
+      "widthM": 14.7,
+      "depthM": 11.3,
+      "heightM": 6.7,
+      "areaM2": 167
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Small single-story shop facade",
+    "notes": ""
+  },
+  "The Traveling Tinker": {
+    "land": "crossroads",
+    "venueType": "shopping",
+    "category": "Specialty Shop",
+    "footprint": {
+      "widthM": 14.7,
+      "depthM": 11.3,
+      "heightM": 6.7,
+      "areaM2": 167
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Small single-story shop facade",
+    "notes": ""
+  },
+  "The Gilded Compass Tavern": {
+    "land": "crossroads",
+    "venueType": "dining",
+    "category": "Seated Dining",
+    "footprint": {
+      "widthM": 32.3,
+      "depthM": 23.0,
+      "heightM": 9.1,
+      "areaM2": 743
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story dining facade",
+    "notes": ""
+  },
+  "The Roasted Boar": {
+    "land": "crossroads",
+    "venueType": "dining",
+    "category": "Quick Service",
+    "footprint": {
+      "widthM": 20.6,
+      "depthM": 15.8,
+      "heightM": 6.7,
+      "areaM2": 325
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story dining facade",
+    "notes": ""
+  },
+  "Firefruit Roasters": {
+    "land": "crossroads",
+    "venueType": "dining",
+    "category": "Festival Style",
+    "footprint": {
+      "widthM": 18.7,
+      "depthM": 12.4,
+      "heightM": 5.5,
+      "areaM2": 232
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Open-air stall",
+    "notes": ""
+  },
+  "The Iron Kraken": {
+    "land": "ironhaven_cove",
+    "venueType": "attraction",
+    "category": "Water Coaster",
+    "footprint": {
+      "widthM": 173.8,
+      "depthM": 69.5,
+      "heightM": 33.5,
+      "areaM2": 12078
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Splashdown lift height",
+    "notes": "Flagged bottleneck in engine"
+  },
+  "Dockyard Breakout": {
+    "land": "ironhaven_cove",
+    "venueType": "attraction",
+    "category": "Old Mill (boat dark ride)",
+    "footprint": {
+      "widthM": 85.1,
+      "depthM": 65.5,
+      "heightM": 13.7,
+      "areaM2": 5574
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Show building facade height",
+    "notes": ""
+  },
+  "The Inventor's Dockyard": {
+    "land": "ironhaven_cove",
+    "venueType": "activity",
+    "category": "Water Park",
+    "footprint": {
+      "widthM": 109.9,
+      "depthM": 84.5,
+      "heightM": 12.2,
+      "areaM2": 9290
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Open water-play area, low structures",
+    "notes": ""
+  },
+  "Ironhaven Plunge": {
+    "land": "ironhaven_cove",
+    "venueType": "attraction",
+    "category": "Flume",
+    "footprint": {
+      "widthM": 91.4,
+      "depthM": 50.8,
+      "heightM": 18.3,
+      "areaM2": 4645
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Drop-tower element",
+    "notes": ""
+  },
+  "Brass and Barnacle Outfitters": {
+    "land": "ironhaven_cove",
+    "venueType": "shopping",
+    "category": "Large Shop",
+    "footprint": {
+      "widthM": 24.2,
+      "depthM": 17.3,
+      "heightM": 9.1,
+      "areaM2": 418
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story shop facade",
+    "notes": ""
+  },
+  "Blackwake Tavern": {
+    "land": "ironhaven_cove",
+    "venueType": "dining",
+    "category": "Tavern",
+    "footprint": {
+      "widthM": 26.7,
+      "depthM": 19.1,
+      "heightM": 8.5,
+      "areaM2": 511
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story dining facade",
+    "notes": ""
+  },
+  "Outlaw Run: Ember Trail": {
+    "land": "ember_wastes",
+    "venueType": "attraction",
+    "category": "Roller Coaster",
+    "footprint": {
+      "widthM": 220.8,
+      "depthM": 73.6,
+      "heightM": 42.7,
+      "areaM2": 16258
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Lift hill height",
+    "notes": "Large thrill coaster baseline"
+  },
+  "Outlaws of the Wastes": {
+    "land": "ember_wastes",
+    "venueType": "attraction",
+    "category": "Interactive Ride",
+    "footprint": {
+      "widthM": 81.5,
+      "depthM": 62.7,
+      "heightM": 15.2,
+      "areaM2": 5111
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Show building facade height",
+    "notes": ""
+  },
+  "The Last Run of Redline": {
+    "land": "ember_wastes",
+    "venueType": "attraction",
+    "category": "Dark Ride",
+    "footprint": {
+      "widthM": 81.5,
+      "depthM": 62.7,
+      "heightM": 15.2,
+      "areaM2": 5111
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Show building facade height",
+    "notes": "Flagged bottleneck in engine"
+  },
+  "High Noon at Cinder Ridge": {
+    "land": "ember_wastes",
+    "venueType": "activity",
+    "category": "Show",
+    "footprint": {
+      "widthM": 33.4,
+      "depthM": 22.3,
+      "heightM": 10.7,
+      "areaM2": 743
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Western town-front facades",
+    "notes": ""
+  },
+  "Cinder Supply Co.": {
+    "land": "ember_wastes",
+    "venueType": "shopping",
+    "category": "Large Shop",
+    "footprint": {
+      "widthM": 24.2,
+      "depthM": 17.3,
+      "heightM": 8.5,
+      "areaM2": 418
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story shop facade",
+    "notes": ""
+  },
+  "The Cinder Ridge Chop House": {
+    "land": "ember_wastes",
+    "venueType": "dining",
+    "category": "Restaurant",
+    "footprint": {
+      "widthM": 30.2,
+      "depthM": 21.5,
+      "heightM": 9.1,
+      "areaM2": 650
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Single-story dining facade",
+    "notes": ""
+  },
+  "Observatory Castle (icon structure)": {
+    "land": "observatory_castle",
+    "venueType": "icon_structure",
+    "category": "Park landmark / weenie - celestial telescope-castle",
+    "footprint": {
+      "widthM": 37.3,
+      "depthM": 37.3,
+      "heightM": 48.8,
+      "areaM2": 1394
+    },
+    "estimateStatus": "placeholder_estimate",
+    "heightNote": "Tallest structure in the park by design - Aethermoor's primary weenie, kept well under the FAA's 200ft/61m threshold (real comparison: Cinderella Castle at 189ft/57.6m)",
+    "notes": "Gateway land between Crossroads and Lunara - no rides, just the icon tower geometry"
+  }
+}

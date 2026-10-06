@@ -237,6 +237,16 @@ function createAgent(archetypeId) {
             currentAttraction: null,
             targetAttraction: null,
             transit: null,
+            // landPosition: agent's {x,z} spot (meters, land-local) within
+            // currentLand, once known. null = not yet tracked - lands without
+            // real position data (all but Ironhaven Cove as of 2026-09-18)
+            // never set this, and engine.js treats null as "land center."
+            landPosition: null,
+            // internalTransit: mirrors `transit` but for walking between two
+            // venues WITHIN the same land, using real meter positions instead
+            // of the connections graph. Set by startInternalTransit() in
+            // engine.js.
+            internalTransit: null,
             waitingMinutes: 0,
             cooldowns: {}
         }

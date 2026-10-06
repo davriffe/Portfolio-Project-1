@@ -27,6 +27,16 @@ const LAND_POSITIONS = {
 // corridor visually reads as "bottom of screen" given the camera looks north
 const ENTRY_POSITION = new THREE.Vector3(0, 0, 10);
 
+// METERS_TO_SCENE_UNITS: park_config.json position data (Ironhaven Cove,
+// added 2026-09-18) is in real land-local meters - venues span up to ~150m
+// from the land's center. This scene's land planes are a stylized ~11x11
+// unit clock-face layout, not built to any real-world scale, so real
+// positions get scaled down to fit a land's visual footprint rather than
+// plotted 1:1 (which would fling venues far outside their land plane).
+// 11-unit plane vs. Ironhaven's ~280m real span -> ~0.04 units/meter.
+// Revisit this if other lands get position data at a different real scale.
+const METERS_TO_SCENE_UNITS = 0.04;
+
 const LAND_COLORS = {
     crossroads: { primary: '#4A4A4A' },
     observatory: { primary: '#C9B37A' },
@@ -323,9 +333,20 @@ function hashString(str) {
     return h;
 }
 
-// getAttractionClusterOffset: deterministic spot within a land where a given
-// attraction's queue gathers, so different attractions in the same land don't overlap
+// getAttractionClusterOffset: spot within a land where a given attraction's
+// queue gathers, so different attractions in the same land don't overlap.
+// Prefers the venue's real park_config.json position (Ironhaven Cove so far)
+// scaled into scene units; falls back to the old deterministic hash-scatter
+// for every land that doesn't have position data yet.
 function getAttractionClusterOffset(attractionId) {
+    const attraction = simulationState.parkMap?.attractions?.[attractionId];
+    if (attraction?.position) {
+        return {
+            x: attraction.position.x * METERS_TO_SCENE_UNITS,
+            z: attraction.position.z * METERS_TO_SCENE_UNITS
+        };
+    }
+
     const h = hashString(attractionId);
     const angle = (h % 360) * (Math.PI / 180);
     const radius = 2 + (Math.abs(h) % 100) / 50;
@@ -352,7 +373,7 @@ function getIdleOffset(agent) {
 }
 
 function computeAgentPosition(agent) {
-    const { currentLand, transit, targetAttraction } = agent.dynamic;
+    const { currentLand, transit, internalTransit, targetAttraction } = agent.dynamic;
 
     if (transit) {
         const from = LAND_POSITIONS[transit.fromLand];
@@ -366,6 +387,19 @@ function computeAgentPosition(agent) {
     }
 
     const base = LAND_POSITIONS[currentLand] || LAND_POSITIONS.crossroads;
+
+    // Walking between two venues within the same land (Ironhaven Cove so
+    // far) - lerp between the real meter positions, then scale into scene
+    // units, same as a resting/queueing offset from `base`.
+    if (internalTransit) {
+        const span = internalTransit.arriveTick - internalTransit.departTick;
+        const t = span > 0 ? (simulationState.currentTick - internalTransit.departTick) / span : 1;
+        const clampedT = Math.min(1, Math.max(0, t));
+        const x = THREE.MathUtils.lerp(internalTransit.fromPosition.x, internalTransit.toPosition.x, clampedT) * METERS_TO_SCENE_UNITS;
+        const z = THREE.MathUtils.lerp(internalTransit.fromPosition.z, internalTransit.toPosition.z, clampedT) * METERS_TO_SCENE_UNITS;
+        return new THREE.Vector3(base.x + x, base.y + AGENT_REST_Y, base.z + z);
+    }
+
     const offset = targetAttraction ? getQueueOffset(agent, targetAttraction) : getIdleOffset(agent);
     return new THREE.Vector3(base.x + offset.x, base.y + AGENT_REST_Y, base.z + offset.z);
 }
