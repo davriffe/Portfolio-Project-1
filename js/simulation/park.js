@@ -5,7 +5,10 @@
 // Does NOT run any simulation logic - that is engine.js
 
 async function loadPark() {
-    const response = await fetch('../data/park_config.json');
+    // Resolve relative to THIS module file, not the page URL - a bare '../data/...'
+    // resolves against index.html's location, which breaks when the site is served
+    // from a subpath (e.g. GitHub Pages at /Portfolio-Project-1/)
+    const response = await fetch(new URL('../../data/park_config.json', import.meta.url));
     const data = await response.json();
     return data;
 }
