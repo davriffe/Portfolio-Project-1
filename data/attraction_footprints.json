@@ -207,7 +207,7 @@
   "Observatory Ascent": {
     "land": "lunara",
     "venueType": "attraction",
-    "category": "Dark Ride",
+    "category": "Dark Coaster (hybrid)",
     "footprint": {
       "widthM": 81.5,
       "depthM": 62.7,
@@ -216,7 +216,7 @@
     },
     "estimateStatus": "placeholder_estimate",
     "heightNote": "Show building facade height",
-    "notes": "CATEGORY CONFLICT: reconciled tables say Dark Ride, original OneNote paste said Family Coaster - unresolved, flagged for David"
+    "notes": "Flagged bottleneck in engine. Category resolved 2026-10-07: hybrid dark coaster (coaster with show scenes, Seven Dwarfs Mine Train style). Dimensions are still the dark-ride placeholder - revisit when Lunara gets designed."
   },
   "Stargazer's Keep": {
     "land": "lunara",

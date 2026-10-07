@@ -223,7 +223,7 @@
       "name": "Observatory Ascent",
       "land": "lunara",
       "type": "attraction",
-      "category": "Dark Ride",
+      "category": "Dark Coaster",
       "capacityPerHour": 1100,
       "isBottleneck": true
     },
