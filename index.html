@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aethermoor — Park Simulation</title>
+    <!-- JetBrains Mono was declared in style.css but never actually loaded, so visitors
+         without it installed were seeing the browser's default monospace font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -33,13 +38,21 @@
                 </div>
             </div>
             <div id="agent-control">
-                <label>Agents</label>
+                <!-- Labelled "Guests" (not "Agents") so visitors don't read it as AI agents -->
+                <label>Guests</label>
                 <div class="slider-row">
                     <!-- max raised 200 -> 1000 (2026-07-15) to allow higher-congestion test runs -->
                     <input type="range" id="slider-agents" min="10" max="1000" value="100" step="10">
                     <span id="agent-display">100</span>
                 </div>
             </div>
+            <!-- Guest-type legend: rows are built by js/ui/about.js from the same
+                 color table scene.js renders the pawns with -->
+            <div id="legend">
+                <p class="panel-label">Guest types</p>
+                <ul id="legend-list"></ul>
+            </div>
+            <button id="btn-about" class="btn-text">About this project</button>
             <div id="sim-clock">
                 <span id="clock-display">9:00 AM</span>
             </div>
@@ -49,6 +62,18 @@
 
             <!-- Three.js renders the full 3D park environment here -->
             <canvas id="threejs-canvas"></canvas>
+
+            <!-- Intro card for first-time visitors - opened automatically on a first visit
+                 and from the About button (js/ui/about.js). Copy approved 2026-10-11. -->
+            <div id="about-card" role="dialog" aria-labelledby="about-title" hidden>
+                <button id="about-close" class="about-close" aria-label="Close">&times;</button>
+                <h2 id="about-title">Aethermoor <span class="about-subtitle">a theme park crowd simulation</span></h2>
+                <p>At a theme park, every guest is spending one thing they can't get back: time. Aethermoor simulates a full day at a fictional park, with hundreds of guests who each have their own priorities, to see where that time actually goes.</p>
+                <p><strong>The question:</strong> How much of a guest's day goes to riding, waiting, and walking, and how does that split change as the park gets more crowded?</p>
+                <p><strong>Try it:</strong> Press play to run the day (9 AM to 9 PM). Use <strong>Guests</strong> to set how crowded the park is, and <strong>Speed</strong> to fast-forward. Each pawn is one simulated guest, a small JavaScript program following simple rules about what to ride, when to eat, and how long it'll wait (not an AI). Its color is the guest type, shown in the legend. Drag to orbit the map and scroll to zoom. When the park closes, you get a results summary you can export.</p>
+                <p class="about-note">Work in progress: the charts that break down the time split are being built next.</p>
+                <p class="about-footer">Built by David Riffey &middot; JavaScript and Three.js (D3 charts in progress) &middot; <a href="https://github.com/davriffe/Portfolio-Project-1" target="_blank" rel="noopener">GitHub</a></p>
+            </div>
 
             <!-- D3 overlay panels - toggled on/off by cursor position -->
             <div id="d3-overlay">

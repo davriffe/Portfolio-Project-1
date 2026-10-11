@@ -469,4 +469,4 @@ function updateScene() {
     renderer.render(scene, camera);
 }
 
-export { initScene, updateScene };
+export { initScene, updateScene, ARCHETYPE_COLORS };

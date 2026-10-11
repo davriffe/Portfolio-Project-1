@@ -8,6 +8,7 @@
 
 import { play, pause, reset, setSpeed, setAgentCount, simulationState } from './simulation/engine.js';
 import { initScene } from './viz/scene.js';
+import { initAbout } from './ui/about.js';
 
 // PLAY / PAUSE / RESET BUTTONS
 // Pure pass-through - a click carries no data, so we just call the matching function
@@ -18,6 +19,10 @@ const btnReset = document.getElementById('btn-reset');
 // Scene builds immediately on load so the park is visible before the sim starts -
 // scene.js's own `initialized` guard makes this safe to also not worry about here
 initScene();
+
+// Intro card + guest-type legend (js/ui/about.js) - shows automatically on a
+// visitor's first load, reopenable any time from the About button
+initAbout();
 
 btnPlay.addEventListener('click', () => {
     play();
@@ -54,7 +59,8 @@ sliderSpeed.addEventListener('input', (event) => {
     setSpeed(multiplier);
 });
 
-// AGENT COUNT SLIDER
+// GUEST COUNT SLIDER (labelled "Guests" in the UI since 2026-10-11 - "Agents" read as
+// "AI agents" to visitors; ids keep the original slider-agents/agent-display names)
 // No translation needed here - setAgentCount() already clamps any raw number internally
 // (see the Math.min/Math.max inside it), so the slider's value passes straight through
 const sliderAgents = document.getElementById('slider-agents');
