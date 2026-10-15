@@ -766,6 +766,12 @@ function checkTransitArrival(agent, currentTick) {
     }
 }
 
+////////////////////////////////////////////////////////
+// Beginning of internal walking section
+// Use this for when an agent comes into a land.
+// Overall logic of this section:
+// order startInternalTransitn -> When a tick happens processAgent happens -> after processAgent then checkInternalTransitArrival will happen -> next tick  
+
 // INTERNAL_WALK_SPEED_MPM: assumed guest walking pace within a land, in
 // meters per sim-minute. ~80 m/min is a brisk-but-not-rushed park stroll
 // (~4.8 km/h). Only ever used for venues that have entrancePosition/position
@@ -800,15 +806,7 @@ function startInternalTransit(agent, target, currentTick) {
     };
 }
 
-// checkInternalTransitArrival: finalizes an internal-land walk once enough
-// ticks have passed. Updates landPosition so the agent is "standing at" the
-// target's entrance, ready to queue next tick - mirrors checkTransitArrival().
-function checkInternalTransitArrival(agent, currentTick) {
-    if (currentTick >= agent.dynamic.internalTransit.arriveTick) {
-        agent.dynamic.landPosition = agent.dynamic.internalTransit.toPosition;
-        agent.dynamic.internalTransit = null;
-    }
-}
+
 
 // processAgent: per-tick dispatcher for a single agent's state
 // Checks, in order: mid-transit? wait or finish. No target? decide one.
@@ -868,6 +866,18 @@ function processAgent(agent, parkMap, currentTick) {
         joinQueue(agent, target);
     }
 }
+
+// checkInternalTransitArrival: finalizes an internal-land walk once enough
+// ticks have passed. Updates landPosition so the agent is "standing at" the
+// target's entrance, ready to queue next tick - mirrors checkTransitArrival().
+function checkInternalTransitArrival(agent, currentTick) {
+    if (currentTick >= agent.dynamic.internalTransit.arriveTick) {
+        agent.dynamic.landPosition = agent.dynamic.internalTransit.toPosition;
+        agent.dynamic.internalTransit = null;
+    }
+}
+//End of walking logic section
+////////////////////////////////////////////////////////
 
 // TYPE_TO_PREFERENCE: reverse of PREFERENCE_TO_TYPE - given a venue's singular
 // type, find the matching plural preferenceWeights key. Dining has no entry,
